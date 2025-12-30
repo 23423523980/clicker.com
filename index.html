@@ -8,8 +8,7 @@
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8;
-            --rarity-common: #3b82f6; --rarity-uncommon: #a855f7;
-            --rarity-rare: #22c55e; --rarity-ultra: #ef4444; --rarity-legend: #eab308;
+            --rarity-common: #3b82f6; --rarity-rare: #22c55e; --rarity-ultra: #ef4444;
             --winter-accent: #60a5fa;
         }
         .light-theme { --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --accent: #0284c7; }
@@ -49,14 +48,15 @@
         
         #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 15px; z-index: 3000; transition: 0.4s; font-weight: bold; text-align: center; white-space: pre-line; }
 
-        .wheel-container { position: relative; width: 300px; height: 300px; margin: 5px auto; }
+        /* Улучшенное колесо */
+        .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; border: 8px solid #334155; border-radius: 50%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         .wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 10px solid #334155; 
+            width: 100%; height: 100%; border-radius: 50%; 
             transition: 5s cubic-bezier(0.15, 0, 0.15, 1); 
             background: conic-gradient(#3b82f6 0deg 45deg, #eab308 45deg 90deg, #ef4444 90deg 135deg, #22c55e 135deg 180deg, #a855f7 180deg 225deg, #f97316 225deg 270deg, #ec4899 270deg 315deg, #06b6d4 315deg 360deg);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
-        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #fff; z-index: 10; }
+        .wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #ef4444; z-index: 20; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
+        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; background: white; border-radius: 50%; z-index: 15; border: 4px solid #1e293b; }
     </style>
 </head>
 <body>
@@ -90,6 +90,7 @@
             <h2 style="text-align:center; margin-bottom:10px;">ФОРТУНА</h2>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
+                <div class="wheel-center"></div>
                 <div id="wheel" class="wheel"></div>
             </div>
             <button onclick="spinWheel()" id="spin-btn">ИСПЫТАТЬ УДАЧУ (100 💰)</button>
@@ -97,9 +98,9 @@
 
         <div id="screen-shop" class="screen">
             <h2 style="text-align:center;">МАГАЗИН</h2>
-            <button onclick="buyEgg('normal')">🥚 ОБЫЧНОЕ ЯЙЦО (100 💰)</button>
-            <button onclick="buyEgg('winter')" style="background: var(--winter-accent);">❄️ ЗИМНЕЕ ЯЙЦО (500 💰)</button>
-            <button id="boost-btn" style="background:#22c55e;" onclick="buyOnceBoost()">⚡️ КЛИК-БУСТ x25 (200 💰)</button>
+            <button id="shop-normal" onclick="buyEgg('normal')">🥚 ОБЫЧНОЕ ЯЙЦО</button>
+            <button id="shop-winter" onclick="buyEgg('winter')" style="background: var(--winter-accent);">❄️ ЗИМНЕЕ ЯЙЦО</button>
+            <button id="boost-btn" style="background:#22c55e;" onclick="buyOnceBoost()">⚡️ КЛИК-БУСТ x1.5 (200 💰)</button>
         </div>
 
         <div id="screen-inv" class="screen">
@@ -148,7 +149,7 @@
         }
 
         let curUser = null;
-        let db = { pass: "", coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false };
+        let db = { pass: "", coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false, freeNormal: 5, freeWinter: 2 };
 
         function showMsg(txt, color = "#38bdf8") {
             const t = document.getElementById('toast');
@@ -165,9 +166,9 @@
             if (db.boostPurchased) return;
             if (db.coins >= 200) {
                 db.coins -= 200;
-                db.basePower *= 25;
+                db.basePower *= 1.5;
                 db.boostPurchased = true;
-                showMsg("КУПЛЕНО! Мощь x25!", "#22c55e");
+                showMsg("Успех! Мощь x1.5", "#22c55e");
                 updateUI(); save();
             } else showMsg("Недостаточно 💰", "#ef4444");
         }
@@ -190,9 +191,18 @@
         }
 
         function buyEgg(type) {
-            const cost = type === 'normal' ? 100 : 500;
+            let cost = 0;
+            if(type === 'normal') {
+                if(db.freeNormal > 0) { db.freeNormal--; showMsg("Использовано бесплатное яйцо!"); }
+                else cost = 200;
+            } else {
+                if(db.freeWinter > 0) { db.freeWinter--; showMsg("Использовано бесплатное зимнее яйцо!"); }
+                else cost = 300;
+            }
+
             if(db.coins < cost) return showMsg("Мало 💰");
             db.coins -= cost;
+
             let p;
             if(type === 'normal') {
                 const pool = [{n:"Кот", i:"🐱"}, {n:"Пёс", i:"🐶"}, {n:"Хомяк", i:"🐹"}];
@@ -218,7 +228,12 @@
             document.getElementById('ui-power').innerText = db.basePower < 1000 ? db.basePower.toFixed(1) : formatNum(db.basePower);
             document.getElementById('ui-lvl').innerText = db.lvl;
             
-            // Состояние кнопки буста
+            // Обновление цен в магазине
+            const nBtn = document.getElementById('shop-normal');
+            const wBtn = document.getElementById('shop-winter');
+            nBtn.innerText = db.freeNormal > 0 ? `🥚 БЕСПЛАТНО (${db.freeNormal} шт)` : `🥚 ОБЫЧНОЕ ЯЙЦО (200 💰)`;
+            wBtn.innerText = db.freeWinter > 0 ? `❄️ БЕСПЛАТНО (${db.freeWinter} шт)` : `❄️ ЗИМНЕЕ ЯЙЦО (300 💰)`;
+
             const bBtn = document.getElementById('boost-btn');
             if(db.boostPurchased) {
                 bBtn.innerText = "⚡️ КУПЛЕНО (МАКС)";
@@ -242,12 +257,15 @@
             const key = 'dc_user_' + u;
             if(mode === 'reg') {
                 if(localStorage.getItem(key)) return showMsg("Логин занят!");
-                db = { pass: p, coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false };
+                db = { pass: p, coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false, freeNormal: 5, freeWinter: 2 };
                 curUser = u; save(); enterGame();
             } else {
                 const data = localStorage.getItem(key);
                 if(!data) return showMsg("Игрок не найден");
                 db = JSON.parse(data);
+                // Проверка на наличие новых полей для старых аккаунтов
+                if(db.freeNormal === undefined) db.freeNormal = 0;
+                if(db.freeWinter === undefined) db.freeWinter = 0;
                 if(db.pass !== p) return showMsg("Пароль неверный!");
                 curUser = u; enterGame();
             }
@@ -274,8 +292,9 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(el) el.classList.add('active');
-            updateUI(); // Обновляем магазин при переходе
+            updateUI();
         }
     </script>
 </body>
 </html>
+
