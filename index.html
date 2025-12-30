@@ -43,7 +43,8 @@
         .nav-item.active { opacity: 1; color: var(--accent); }
         .nav-item span { font-size: 10px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
         
-        button { width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; background: var(--accent); color: white; }
+        button { width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; background: var(--accent); color: white; transition: 0.2s; }
+        button:disabled { background: #475569 !important; cursor: not-allowed; opacity: 0.8; }
         input { width: 100%; padding: 14px; border-radius: 14px; border: none; background: rgba(128,128,128,0.2); color: var(--text); margin-bottom: 10px; box-sizing: border-box; }
         
         #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 15px; z-index: 3000; transition: 0.4s; font-weight: bold; text-align: center; white-space: pre-line; }
@@ -52,18 +53,10 @@
         .wheel { 
             width: 100%; height: 100%; border-radius: 50%; border: 10px solid #334155; 
             transition: 5s cubic-bezier(0.15, 0, 0.15, 1); 
-            background: conic-gradient(
-                #3b82f6 0deg 45deg, #eab308 45deg 90deg, 
-                #ef4444 90deg 135deg, #22c55e 135deg 180deg,
-                #a855f7 180deg 225deg, #f97316 225deg 270deg,
-                #ec4899 270deg 315deg, #06b6d4 315deg 360deg
-            );
+            background: conic-gradient(#3b82f6 0deg 45deg, #eab308 45deg 90deg, #ef4444 90deg 135deg, #22c55e 135deg 180deg, #a855f7 180deg 225deg, #f97316 225deg 270deg, #ec4899 270deg 315deg, #06b6d4 315deg 360deg);
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
-        .wheel-pointer { 
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
-            width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #fff; z-index: 10;
-        }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #fff; z-index: 10; }
     </style>
 </head>
 <body>
@@ -106,7 +99,7 @@
             <h2 style="text-align:center;">МАГАЗИН</h2>
             <button onclick="buyEgg('normal')">🥚 ОБЫЧНОЕ ЯЙЦО (100 💰)</button>
             <button onclick="buyEgg('winter')" style="background: var(--winter-accent);">❄️ ЗИМНЕЕ ЯЙЦО (500 💰)</button>
-            <button style="background:#22c55e;" onclick="buyInfiniteBoost()">⚡️ КЛИК-БУСТ x25 (200 💰)</button>
+            <button id="boost-btn" style="background:#22c55e;" onclick="buyOnceBoost()">⚡️ КЛИК-БУСТ x25 (200 💰)</button>
         </div>
 
         <div id="screen-inv" class="screen">
@@ -155,7 +148,7 @@
         }
 
         let curUser = null;
-        let db = { pass: "", coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark' };
+        let db = { pass: "", coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false };
 
         function showMsg(txt, color = "#38bdf8") {
             const t = document.getElementById('toast');
@@ -168,11 +161,13 @@
             updateUI(); save();
         }
 
-        function buyInfiniteBoost() {
+        function buyOnceBoost() {
+            if (db.boostPurchased) return;
             if (db.coins >= 200) {
                 db.coins -= 200;
-                db.basePower *= 25; // Установлен множитель x25
-                showMsg("Мощь клика x25!", "#22c55e");
+                db.basePower *= 25;
+                db.boostPurchased = true;
+                showMsg("КУПЛЕНО! Мощь x25!", "#22c55e");
                 updateUI(); save();
             } else showMsg("Недостаточно 💰", "#ef4444");
         }
@@ -222,6 +217,14 @@
             document.getElementById('ui-coins').innerText = formatNum(db.coins) + " 💰";
             document.getElementById('ui-power').innerText = db.basePower < 1000 ? db.basePower.toFixed(1) : formatNum(db.basePower);
             document.getElementById('ui-lvl').innerText = db.lvl;
+            
+            // Состояние кнопки буста
+            const bBtn = document.getElementById('boost-btn');
+            if(db.boostPurchased) {
+                bBtn.innerText = "⚡️ КУПЛЕНО (МАКС)";
+                bBtn.disabled = true;
+            }
+
             const inv = document.getElementById('ui-inventory');
             inv.innerHTML = "";
             db.pets.forEach(p => {
@@ -239,7 +242,7 @@
             const key = 'dc_user_' + u;
             if(mode === 'reg') {
                 if(localStorage.getItem(key)) return showMsg("Логин занят!");
-                db = { pass: p, coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark' };
+                db = { pass: p, coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false };
                 curUser = u; save(); enterGame();
             } else {
                 const data = localStorage.getItem(key);
@@ -271,6 +274,7 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(el) el.classList.add('active');
+            updateUI(); // Обновляем магазин при переходе
         }
     </script>
 </body>
