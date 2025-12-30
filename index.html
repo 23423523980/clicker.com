@@ -8,23 +8,40 @@
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8;
-            --rarity-common: #3b82f6; --rarity-rare: #22c55e; --rarity-ultra: #ef4444;
-            --winter-accent: #60a5fa;
+            --rarity-common: #3b82f6; --rarity-rare: #a855f7; --rarity-ultra: #ef4444;
+            --winter-accent: #60a5fa; --nav-bg: #1e293b;
         }
-        .light-theme { --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --accent: #0284c7; }
+        body.light-theme {
+            --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --accent: #0284c7;
+            --nav-bg: #e2e8f0;
+        }
         
         body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; transition: 0.3s; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; position: relative; }
 
-        .snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .snowflake { position: absolute; top: -10px; color: white; opacity: 0.8; font-size: 10px; user-select: none; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+        /* СТИЛИ СНЕГА */
+        .snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .snowflake { 
+            position: absolute; 
+            top: -10px; 
+            color: white; 
+            opacity: 0.8; 
+            font-size: 12px; 
+            user-select: none; 
+            animation: fall linear infinite; 
+        }
+        @keyframes fall { 
+            to { transform: translateY(105vh) rotate(360deg); } 
+        }
 
-        .container { background: var(--card); padding: 25px; border-radius: 32px; width: 90%; max-width: 380px; height: 680px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.4); z-index: 10; }
+        .container { background: var(--card); padding: 25px; border-radius: 32px; width: 90%; max-width: 380px; height: 680px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.4); z-index: 10; transition: background 0.3s; }
         .screen { display: none; flex: 1; overflow-y: auto; padding-bottom: 90px; }
         .active { display: block; }
         
-        .settings-corner-btn { position: absolute; top: 35px; right: 25px; font-size: 24px; cursor: pointer; z-index: 100; opacity: 0.8; }
-        .info-corner-btn { position: absolute; bottom: 100px; left: 25px; font-size: 20px; cursor: pointer; z-index: 100; opacity: 0.5; }
+        #egg-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 5000; display:none; flex-direction:column; align-items:center; justify-content:center; }
+        .egg-shake { font-size: 80px; animation: shake 0.5s infinite; }
+        @keyframes shake { 0% { transform: rotate(0); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(0); } }
+        .pet-pop { font-size: 100px; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.49); }
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
 
         .click-circle { 
             width: 170px; height: 170px; margin: 20px auto; border-radius: 50%; 
@@ -35,28 +52,19 @@
         .click-circle:active { transform: scale(0.92); }
         @keyframes winter-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .pet-card { padding: 12px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid; background: rgba(128,128,128,0.1); }
+        .pet-card { padding: 12px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid; background: rgba(128,128,128,0.1); color: var(--text); }
         
-        .nav { position: absolute; bottom: 0; left: 0; right: 0; height: 85px; background: var(--card); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(128,128,128,0.1); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; opacity: 0.3; transition: 0.2s; color: inherit; }
+        .nav { position: absolute; bottom: 0; left: 0; right: 0; height: 85px; background: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(128,128,128,0.1); border-bottom-left-radius: 32px; border-bottom-right-radius: 32px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; opacity: 0.3; transition: 0.2s; color: var(--text); font-size: 24px; }
         .nav-item.active { opacity: 1; color: var(--accent); }
-        .nav-item span { font-size: 10px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
         
         button { width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; background: var(--accent); color: white; transition: 0.2s; }
-        button:disabled { background: #475569 !important; cursor: not-allowed; opacity: 0.8; }
         input { width: 100%; padding: 14px; border-radius: 14px; border: none; background: rgba(128,128,128,0.2); color: var(--text); margin-bottom: 10px; box-sizing: border-box; }
         
-        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 15px; z-index: 3000; transition: 0.4s; font-weight: bold; text-align: center; white-space: pre-line; }
+        #toast { position: fixed; top: -120px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 20px; z-index: 6000; transition: 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); font-weight: bold; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); white-space: pre-line; min-width: 200px; }
 
-        /* Улучшенное колесо */
-        .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; border: 8px solid #334155; border-radius: 50%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        .wheel { 
-            width: 100%; height: 100%; border-radius: 50%; 
-            transition: 5s cubic-bezier(0.15, 0, 0.15, 1); 
-            background: conic-gradient(#3b82f6 0deg 45deg, #eab308 45deg 90deg, #ef4444 90deg 135deg, #22c55e 135deg 180deg, #a855f7 180deg 225deg, #f97316 225deg 270deg, #ec4899 270deg 315deg, #06b6d4 315deg 360deg);
-        }
-        .wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #ef4444; z-index: 20; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
-        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; background: white; border-radius: 50%; z-index: 15; border: 4px solid #1e293b; }
+        .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; border: 8px solid #334155; border-radius: 50%; overflow: hidden; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; transition: 5s cubic-bezier(0.15, 0, 0.15, 1); background: conic-gradient(#3b82f6 0deg 45deg, #eab308 45deg 90deg, #ef4444 90deg 135deg, #22c55e 135deg 180deg, #a855f7 180deg 225deg, #f97316 225deg 270deg, #ec4899 270deg 315deg, #06b6d4 315deg 360deg); }
     </style>
 </head>
 <body>
@@ -64,9 +72,15 @@
     <div class="snow-container" id="snow"></div>
     <div id="toast"></div>
 
+    <div id="egg-overlay">
+        <div id="egg-render" class="egg-shake">🥚</div>
+        <h2 id="egg-info" style="margin-top:20px; color: white;">ОТКРЫВАЕМ...</h2>
+        <button id="egg-close" style="display:none; width:auto; padding: 10px 40px;" onclick="closeEgg()">ЗАБРАТЬ</button>
+    </div>
+
     <div class="container">
-        <div class="settings-corner-btn" id="set-btn" style="display:none;" onclick="nav('screen-settings', this)">⚙️</div>
-        <div class="info-corner-btn" id="info-btn" style="display:none;" onclick="showInfo()">ℹ️</div>
+        <div id="info-btn" style="position:absolute; bottom:100px; left:25px; cursor:pointer; font-size: 20px; opacity:0.5; display:none; z-index: 101;" onclick="showInfo()">ℹ️</div>
+        <div id="set-btn" style="position:absolute; top:35px; right:25px; cursor:pointer; font-size:24px; display:none; z-index: 101;" onclick="nav('screen-settings', this)">⚙️</div>
 
         <div id="screen-auth" class="screen active">
             <h2 style="text-align:center; margin-top:50px; font-weight:900;">DEMIDOVCLICKER</h2>
@@ -79,27 +93,26 @@
 
         <div id="screen-main" class="screen">
             <div style="text-align:center; margin-top:20px;">
-                <div style="background:#eab308; color:black; padding:5px 15px; border-radius:20px; font-weight:900; font-size:12px; cursor:pointer; display:inline-block;" onclick="tryLevelUp()">LVL: <span id="ui-lvl">0</span> ⬆️</div>
+                <div style="background:#eab308; color:black; padding:5px 15px; border-radius:20px; font-weight:900; font-size:12px; display:inline-block; cursor: pointer;" onclick="tryLevelUp()">LVL: <span id="ui-lvl">0</span> ⬆️</div>
                 <h1 id="ui-coins" style="font-size: 45px; margin: 10px 0;">0 💰</h1>
-                <p style="opacity:0.6; font-size:14px;">Power: <span id="ui-power">1.0</span></p>
+                <p style="opacity:0.6;">Power: <span id="ui-power">1.0</span></p>
                 <div class="click-circle" onclick="clickAction()"></div>
             </div>
         </div>
 
         <div id="screen-wheel" class="screen">
-            <h2 style="text-align:center; margin-bottom:10px;">ФОРТУНА</h2>
+            <h2 style="text-align:center;">ФОРТУНА</h2>
             <div class="wheel-container">
-                <div class="wheel-pointer"></div>
-                <div class="wheel-center"></div>
+                <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:0; border-left:15px solid transparent; border-right:15px solid transparent; border-top:30px solid #ef4444; z-index:20;"></div>
                 <div id="wheel" class="wheel"></div>
             </div>
-            <button onclick="spinWheel()" id="spin-btn">ИСПЫТАТЬ УДАЧУ (100 💰)</button>
+            <button onclick="spinWheel()">КРУТИТЬ (100 💰)</button>
         </div>
 
         <div id="screen-shop" class="screen">
             <h2 style="text-align:center;">МАГАЗИН</h2>
-            <button id="shop-normal" onclick="buyEgg('normal')">🥚 ОБЫЧНОЕ ЯЙЦО</button>
-            <button id="shop-winter" onclick="buyEgg('winter')" style="background: var(--winter-accent);">❄️ ЗИМНЕЕ ЯЙЦО</button>
+            <button id="shop-n" onclick="buyEgg('normal')">🥚 ОБЫЧНОЕ ЯЙЦО</button>
+            <button id="shop-w" onclick="buyEgg('winter')" style="background:var(--winter-accent);">❄️ ЗИМНЕЕ ЯЙЦО</button>
             <button id="boost-btn" style="background:#22c55e;" onclick="buyOnceBoost()">⚡️ КЛИК-БУСТ x1.5 (200 💰)</button>
         </div>
 
@@ -110,169 +123,151 @@
 
         <div id="screen-settings" class="screen">
             <h2 style="text-align:center;">НАСТРОЙКИ</h2>
-            <button onclick="toggleTheme()">🌓 СМЕНИТЬ ТЕМУ</button>
-            <button onclick="location.reload()" style="background:#ef4444; margin-top:20px;">ВЫЙТИ ИЗ АККАУНТА</button>
+            <button onclick="toggleTheme()" style="background: #6366f1;">🌓 СМЕНИТЬ ТЕМУ</button>
+            <button onclick="location.reload()" style="background:#ef4444; margin-top: 20px;">ВЫЙТИ ИЗ АККАУНТА</button>
         </div>
 
         <div class="nav" id="ui-nav" style="display: none;">
-            <div class="nav-item active" onclick="nav('screen-main', this)"><div>🎮</div><span>Главная</span></div>
-            <div class="nav-item" onclick="nav('screen-wheel', this)"><div>🎡</div><span>Колесо</span></div>
-            <div class="nav-item" onclick="nav('screen-shop', this)"><div>🛒</div><span>Магазин</span></div>
-            <div class="nav-item" onclick="nav('screen-inv', this)"><div>🎒</div><span>Вещи</span></div>
+            <div class="nav-item active" onclick="nav('screen-main', this)">🎮</div>
+            <div class="nav-item" onclick="nav('screen-wheel', this)">🎡</div>
+            <div class="nav-item" onclick="nav('screen-shop', this)">🛒</div>
+            <div class="nav-item" onclick="nav('screen-inv', this)">🎒</div>
         </div>
     </div>
 
     <script>
-        function formatNum(n) {
-            if (n < 1000) return n >= 10 ? Math.floor(n) : n.toFixed(1);
-            const units = ["K", "M", "B", "T", "Qa", "Qi"];
-            let i = -1;
-            while (n >= 1000 && i < units.length - 1) { n /= 1000; i++; }
-            return n.toFixed(1).replace(/\.0$/, '') + units[i];
-        }
+        let curUser = null;
+        let db = { pass: "", coins: 0, pets: {}, lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false, freeN: 5, freeW: 2 };
 
+        const PET_POOLS = {
+            normal: [
+                {name: "Кот", icon: "🐱", rar: "common", weight: 40},
+                {name: "Пес", icon: "🐶", rar: "common", weight: 35},
+                {name: "Хомяк", icon: "🐹", rar: "common", weight: 20},
+                {name: "Лиса", icon: "🦊", rar: "rare", weight: 5}
+            ],
+            winter: [
+                {name: "Пингвин", icon: "🐧", rar: "rare", weight: 45},
+                {name: "Олень", icon: "🦌", rar: "rare", weight: 40},
+                {name: "Йети", icon: "👹", rar: "ultra", weight: 10},
+                {name: "Лед. Дракон", icon: "🐉", rar: "ultra", weight: 5}
+            ]
+        };
+
+        // ФУНКЦИЯ СОЗДАНИЯ СНЕГА
         function createSnow() {
             const container = document.getElementById('snow');
+            container.innerHTML = ''; 
             for (let i = 0; i < 40; i++) {
-                let flake = document.createElement('div');
-                flake.className = 'snowflake'; flake.innerText = '•';
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.innerText = '❄';
                 flake.style.left = Math.random() * 100 + 'vw';
-                flake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                flake.style.animationDuration = (Math.random() * 3 + 2) + 's'; 
                 flake.style.opacity = Math.random();
+                flake.style.fontSize = Math.random() * 10 + 10 + 'px';
                 container.appendChild(flake);
             }
         }
-        createSnow();
 
-        function showInfo() {
-            showMsg("DEMIDOVCLICKER\nВерсия: Beta 5.0\nГод: 2025", "var(--card)");
-        }
-
-        let curUser = null;
-        let db = { pass: "", coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false, freeNormal: 5, freeWinter: 2 };
-
-        function showMsg(txt, color = "#38bdf8") {
+        function formatNum(n) { return n >= 1000 ? (n/1000).toFixed(1) + "K" : Math.floor(n); }
+        
+        function showMsg(txt, color = "var(--accent)") {
             const t = document.getElementById('toast');
-            t.innerText = txt; t.style.background = color; t.style.top = "20px";
-            setTimeout(() => t.style.top = "-100px", 2500);
+            t.innerText = txt; t.style.background = color; t.style.top = "30px";
+            setTimeout(() => t.style.top = "-120px", 2500);
         }
 
-        function clickAction() {
-            db.coins += db.basePower;
-            updateUI(); save();
+        function showInfo() { showMsg("DEMIDOVCLICKER\nBeta 5.0\n2025", "#1e293b"); }
+        function save() { if(curUser) localStorage.setItem('dc_user_' + curUser, JSON.stringify(db)); }
+        function applyTheme() {
+            if(db.theme === 'light') document.body.classList.add('light-theme');
+            else document.body.classList.remove('light-theme');
         }
-
-        function buyOnceBoost() {
-            if (db.boostPurchased) return;
-            if (db.coins >= 200) {
-                db.coins -= 200;
-                db.basePower *= 1.5;
-                db.boostPurchased = true;
-                showMsg("Успех! Мощь x1.5", "#22c55e");
-                updateUI(); save();
-            } else showMsg("Недостаточно 💰", "#ef4444");
-        }
-
-        function spinWheel() {
-            if(db.coins < 100) return showMsg("Нужно 100 💰");
-            db.coins -= 100;
-            const wheel = document.getElementById('wheel');
-            const deg = 3600 + Math.floor(Math.random() * 3600);
-            wheel.style.transform = `rotate(${deg}deg)`;
-            setTimeout(() => {
-                const results = ["1000 💰", "СУПЕР КЛИК", "ПУСТО", "200 💰", "РЕДКИЙ ПЕТ", "500 💰", "НИЧЕГО", "X2 МОНЕТЫ"];
-                const res = results[Math.floor(Math.random()*results.length)];
-                if(res.includes("💰")) db.coins += parseInt(res);
-                if(res === "СУПЕР КЛИК") db.basePower *= 1.5;
-                if(res === "РЕДКИЙ ПЕТ") db.pets.push({name: "Феникс", icon: "🐦", rar: "ultra"});
-                showMsg("ВЫИГРЫШ:\n" + res);
-                updateUI(); save();
-            }, 5000);
-        }
+        function toggleTheme() { db.theme = (db.theme === 'dark' ? 'light' : 'dark'); applyTheme(); save(); showMsg("Тема изменена!"); }
 
         function buyEgg(type) {
-            let cost = 0;
-            if(type === 'normal') {
-                if(db.freeNormal > 0) { db.freeNormal--; showMsg("Использовано бесплатное яйцо!"); }
-                else cost = 200;
-            } else {
-                if(db.freeWinter > 0) { db.freeWinter--; showMsg("Использовано бесплатное зимнее яйцо!"); }
-                else cost = 300;
-            }
-
-            if(db.coins < cost) return showMsg("Мало 💰");
+            let cost = (type === 'normal') ? (db.freeN > 0 ? 0 : 200) : (db.freeW > 0 ? 0 : 300);
+            if(db.coins < cost) return showMsg("Мало монет!", "#ef4444");
             db.coins -= cost;
+            if(type === 'normal' && db.freeN > 0) db.freeN--;
+            else if(type === 'winter' && db.freeW > 0) db.freeW--;
 
+            const pool = PET_POOLS[type];
+            const totalWeight = pool.reduce((s, p) => s + p.weight, 0);
+            let rnd = Math.random() * totalWeight;
             let p;
-            if(type === 'normal') {
-                const pool = [{n:"Кот", i:"🐱"}, {n:"Пёс", i:"🐶"}, {n:"Хомяк", i:"🐹"}];
-                p = pool[Math.floor(Math.random()*pool.length)];
-                db.pets.push({name: p.n, icon: p.i, rar: "common"});
-            } else {
-                const pool = [{n:"Пингвин", i:"🐧"}, {n:"Медведь", i:"🐻‍❄️"}, {n:"Олень", i:"🦌"}, {n:"Снежинка", i:"❄️"}, {n:"Лед. Дракон", i:"🐉"}];
-                p = pool[Math.floor(Math.random()*pool.length)];
-                db.pets.push({name: p.n, icon: p.i, rar: "rare"});
+            for (let item of pool) {
+                if (rnd < item.weight) { p = item; break; }
+                rnd -= item.weight;
             }
-            showMsg("ВЫЛУПИЛСЯ:\n" + p.n);
-            updateUI(); save();
+
+            if(db.pets[p.name]) db.pets[p.name].count++;
+            else db.pets[p.name] = { ...p, count: 1 };
+
+            openEggAnim(p, type);
+            save();
         }
 
-        function tryLevelUp() {
-            const cost = (db.lvl + 1) * 1000;
-            if(db.coins >= cost) { db.coins -= cost; db.lvl++; showMsg("LVL UP!", "#eab308"); updateUI(); save(); }
-            else showMsg("Нужно " + cost + " 💰");
+        function openEggAnim(p, type) {
+            const ov = document.getElementById('egg-overlay'), render = document.getElementById('egg-render');
+            const info = document.getElementById('egg-info'), close = document.getElementById('egg-close');
+            ov.style.display = 'flex';
+            render.className = 'egg-shake';
+            render.innerText = (type === 'normal' ? '🥚' : '❄️');
+            info.innerText = "ОТКРЫВАЕМ...";
+            close.style.display = 'none';
+
+            setTimeout(() => {
+                render.className = 'pet-pop';
+                render.innerText = p.icon;
+                info.innerHTML = `<span style="color:var(--rarity-${p.rar})">${p.rar.toUpperCase()}</span><br>${p.name}`;
+                close.style.display = 'block';
+                updateUI();
+            }, 1500);
         }
+
+        function closeEgg() { document.getElementById('egg-overlay').style.display = 'none'; }
 
         function updateUI() {
             document.getElementById('ui-coins').innerText = formatNum(db.coins) + " 💰";
-            document.getElementById('ui-power').innerText = db.basePower < 1000 ? db.basePower.toFixed(1) : formatNum(db.basePower);
+            document.getElementById('ui-power').innerText = db.basePower.toFixed(1);
             document.getElementById('ui-lvl').innerText = db.lvl;
-            
-            // Обновление цен в магазине
-            const nBtn = document.getElementById('shop-normal');
-            const wBtn = document.getElementById('shop-winter');
-            nBtn.innerText = db.freeNormal > 0 ? `🥚 БЕСПЛАТНО (${db.freeNormal} шт)` : `🥚 ОБЫЧНОЕ ЯЙЦО (200 💰)`;
-            wBtn.innerText = db.freeWinter > 0 ? `❄️ БЕСПЛАТНО (${db.freeWinter} шт)` : `❄️ ЗИМНЕЕ ЯЙЦО (300 💰)`;
-
-            const bBtn = document.getElementById('boost-btn');
-            if(db.boostPurchased) {
-                bBtn.innerText = "⚡️ КУПЛЕНО (МАКС)";
-                bBtn.disabled = true;
-            }
-
+            document.getElementById('shop-n').innerText = db.freeN > 0 ? `🥚 БЕСПЛАТНО (${db.freeN})` : "🥚 ОБЫЧНОЕ (200 💰)";
+            document.getElementById('shop-w').innerText = db.freeW > 0 ? `❄️ БЕСПЛАТНО (${db.freeW})` : "❄️ ЗИМНЕЕ (300 💰)";
             const inv = document.getElementById('ui-inventory');
             inv.innerHTML = "";
-            db.pets.forEach(p => {
-                const d = document.createElement('div');
-                d.className = "pet-card"; d.style.borderLeft = `6px solid var(--rarity-${p.rar})`;
-                d.innerHTML = `<span>${p.icon} ${p.name}</span> <span style="font-size:10px; opacity:0.5;">${p.rar}</span>`;
-                inv.appendChild(d);
-            });
+            for(let key in db.pets) {
+                let p = db.pets[key];
+                inv.innerHTML += `<div class="pet-card" style="border-left-color:var(--rarity-${p.rar})">
+                    <span>${p.icon} ${p.name} ${p.count > 1 ? 'x'+p.count : ''}</span>
+                    <small style="opacity:0.5;">${p.rar}</small>
+                </div>`;
+            }
         }
 
         function handleAuth(mode) {
             const u = document.getElementById('u-name').value.trim().toLowerCase();
             const p = document.getElementById('u-pass').value.trim();
-            if(u.length < 3) return;
+            if(u.length < 3) return showMsg("Логин короткий");
             const key = 'dc_user_' + u;
             if(mode === 'reg') {
-                if(localStorage.getItem(key)) return showMsg("Логин занят!");
-                db = { pass: p, coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false, freeNormal: 5, freeWinter: 2 };
+                if(localStorage.getItem(key)) return showMsg("Занято");
+                db = { pass: p, coins: 0, pets: {}, lvl: 0, basePower: 1, theme: 'dark', boostPurchased: false, freeN: 5, freeW: 2 };
                 curUser = u; save(); enterGame();
             } else {
                 const data = localStorage.getItem(key);
-                if(!data) return showMsg("Игрок не найден");
+                if(!data) return showMsg("Нет игрока");
                 db = JSON.parse(data);
-                // Проверка на наличие новых полей для старых аккаунтов
-                if(db.freeNormal === undefined) db.freeNormal = 0;
-                if(db.freeWinter === undefined) db.freeWinter = 0;
-                if(db.pass !== p) return showMsg("Пароль неверный!");
+                if(db.pass !== p) return showMsg("Пароль!");
                 curUser = u; enterGame();
             }
         }
 
         function enterGame() {
-            document.getElementById('screen-auth').classList.remove('active');
+            applyTheme();
+            createSnow(); // Запуск снега при входе
+            document.getElementById('screen-auth').style.display = 'none';
             document.getElementById('ui-nav').style.display = 'flex';
             document.getElementById('set-btn').style.display = 'block';
             document.getElementById('info-btn').style.display = 'block';
@@ -280,21 +275,29 @@
             updateUI();
         }
 
-        function toggleTheme() {
-            db.theme = db.theme === 'dark' ? 'light' : 'dark';
-            document.body.className = db.theme === 'light' ? 'light-theme' : '';
-            save();
-        }
-
-        function save() { if(curUser) localStorage.setItem('dc_user_' + curUser, JSON.stringify(db)); }
         function nav(id, el) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(el) el.classList.add('active');
-            updateUI();
+            if(el.classList.contains('nav-item')) el.classList.add('active');
+        }
+
+        function clickAction() { db.coins += db.basePower; updateUI(); save(); }
+        function tryLevelUp() {
+            let cost = (db.lvl + 1) * 500;
+            if(db.coins >= cost) { db.coins -= cost; db.lvl++; db.basePower += 0.5; showMsg("LVL UP!"); updateUI(); save(); }
+            else showMsg("Нужно " + cost + " 💰");
+        }
+        function spinWheel() {
+            if(db.coins < 100) return showMsg("Нужно 100 💰");
+            db.coins -= 100;
+            const w = document.getElementById('wheel');
+            const deg = 3600 + Math.floor(Math.random()*3600);
+            w.style.transform = `rotate(${deg}deg)`;
+            setTimeout(() => { db.coins += 300; showMsg("Выиграно 300 💰!"); updateUI(); save(); }, 5000);
         }
     </script>
 </body>
 </html>
+
 
