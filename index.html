@@ -3,49 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Demidovclicker Beta 5.1</title>
+    <title>Demidovclicker Beta 5.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* Весь CSS остается прежним для красоты интерфейса */
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8;
             --rarity-common: #3b82f6; --rarity-uncommon: #a855f7;
             --rarity-rare: #22c55e; --rarity-ultra: #ef4444; --rarity-legend: #eab308;
+            --winter-accent: #60a5fa;
         }
         .light-theme { --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --accent: #0284c7; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; transition: 0.3s; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
-        .container { background: var(--card); padding: 25px; border-radius: 32px; width: 90%; max-width: 380px; height: 680px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        
+        body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; transition: 0.3s; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; position: relative; }
+
+        .snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .snowflake { position: absolute; top: -10px; color: white; opacity: 0.8; font-size: 10px; user-select: none; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+
+        .container { background: var(--card); padding: 25px; border-radius: 32px; width: 90%; max-width: 380px; height: 680px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.4); z-index: 10; }
         .screen { display: none; flex: 1; overflow-y: auto; padding-bottom: 90px; }
         .active { display: block; }
-        .settings-corner-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; z-index: 100; }
-        .click-circle { width: 170px; height: 170px; margin: 30px auto; border-radius: 50%; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradient-bg 5s ease infinite; cursor: pointer; transition: 0.1s; border: none; }
-        .click-circle:active { transform: scale(0.92); }
-        @keyframes gradient-bg { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .settings-corner-btn { position: absolute; top: 35px; right: 25px; font-size: 24px; cursor: pointer; z-index: 100; opacity: 0.8; transition: 0.2s; }
+        .info-corner-btn { position: absolute; bottom: 100px; left: 25px; font-size: 20px; cursor: pointer; z-index: 100; opacity: 0.5; transition: 0.2s; }
+        .settings-corner-btn:hover, .info-corner-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        .click-circle { 
+            width: 170px; height: 170px; margin: 30px auto; border-radius: 50%; 
+            background: linear-gradient(-45deg, #d1d5db, #60a5fa, #1e40af, #020617); 
+            background-size: 400% 400%; 
+            animation: winter-gradient 6s ease infinite; 
+            cursor: pointer; transition: 0.1s; border: 4px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        .click-circle:active { transform: scale(0.92); filter: brightness(1.2); }
+        @keyframes winter-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
         .pet-card { padding: 12px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid; background: rgba(128,128,128,0.1); }
         .rarity-label { font-size: 10px; font-weight: 700; opacity: 0.7; text-transform: uppercase; }
         .pet-count { background: var(--accent); color: white; padding: 4px 10px; border-radius: 10px; font-weight: 900; }
+        
         .nav { position: absolute; bottom: 0; left: 0; right: 0; height: 85px; background: var(--card); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(128,128,128,0.1); }
         .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; opacity: 0.3; transition: 0.2s; color: inherit; }
         .nav-item.active { opacity: 1; color: var(--accent); }
         .nav-item span { font-size: 10px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
-        .common { border-color: var(--rarity-common); } .uncommon { border-color: var(--rarity-uncommon); } .rare { border-color: var(--rarity-rare); } .ultra { border-color: var(--rarity-ultra); } .legend { border-color: var(--rarity-legend); }
+        
         button { width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; background: var(--accent); color: white; }
         input { width: 100%; padding: 14px; border-radius: 14px; border: none; background: rgba(128,128,128,0.2); color: var(--text); margin-bottom: 10px; box-sizing: border-box; }
-        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 15px; z-index: 3000; transition: 0.4s; font-weight: bold; }
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 15px; z-index: 3000; transition: 0.4s; font-weight: bold; text-align: center; white-space: pre-line; }
         #hatch-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; border-radius: 32px; }
         .egg-shaking { font-size: 80px; animation: shake 0.2s infinite; }
         @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
-        .reveal-active { animation: grow 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .reveal-active { animation: grow 1.5s forwards; }
         @keyframes grow { 0% { transform: scale(0.1); opacity: 0; } 100% { transform: scale(10); opacity: 1; } }
         .wheel { width: 200px; height: 200px; border-radius: 50%; border: 5px solid #334155; margin: 20px auto; transition: 4s cubic-bezier(0.15, 0, 0.15, 1); background: conic-gradient(#3b82f6 0deg 90deg, #eab308 90deg 180deg, #ef4444 180deg 270deg, #22c55e 270deg 360deg); }
+        .common { border-color: var(--rarity-common); } .uncommon { border-color: var(--rarity-uncommon); } .rare { border-color: var(--rarity-rare); } .ultra { border-color: var(--rarity-ultra); } .legend { border-color: var(--rarity-legend); }
     </style>
 </head>
 <body>
 
+    <div class="snow-container" id="snow"></div>
     <div id="toast"></div>
 
     <div class="container">
         <div class="settings-corner-btn" id="set-btn" style="display:none;" onclick="nav('screen-settings', this)">⚙️</div>
+        <div class="info-corner-btn" id="info-btn" style="display:none;" onclick="showInfo()">ℹ️</div>
 
         <div id="hatch-overlay">
             <div id="hatch-egg" class="egg-shaking">🥚</div>
@@ -55,18 +77,18 @@
 
         <div id="screen-auth" class="screen active">
             <h2 style="text-align:center; margin-top:50px; font-weight:900;">DEMIDOVCLICKER</h2>
-            <p style="text-align:center; opacity:0.5; font-size:12px;">Beta 5.1 | Accounts System</p>
-            <input type="text" id="u-name" placeholder="Придумайте логин">
+            <p style="text-align:center; opacity:0.5; font-size:12px;">Версия Beta 5.0 ❄️</p>
+            <input type="text" id="u-name" placeholder="Логин">
             <input type="password" id="u-pass" placeholder="Пароль">
             <button onclick="handleAuth('login')">ВОЙТИ</button>
-            <button onclick="handleAuth('reg')" style="background:#475569;">СОЗДАТЬ АККАУНТ</button>
+            <button onclick="handleAuth('reg')" style="background:#475569;">РЕГИСТРАЦИЯ</button>
         </div>
 
         <div id="screen-main" class="screen">
             <div style="text-align:center; margin-top:20px;">
                 <div style="background:#eab308; color:black; padding:5px 15px; border-radius:20px; font-weight:900; font-size:12px; cursor:pointer;" onclick="tryLevelUp()">LVL: <span id="ui-lvl">0</span> ⬆️</div>
                 <h1 id="ui-coins" style="font-size: 45px; margin: 15px 0;">0 💰</h1>
-                <p style="font-size:14px; opacity:0.6;">Power: <span id="ui-power">1.0</span></p>
+                <p style="font-size:14px; opacity:0.6;">Power: <span id="ui-power">1</span></p>
                 <div class="click-circle" onclick="clickAction()"></div>
             </div>
         </div>
@@ -75,14 +97,19 @@
             <h2 style="text-align:center;">ФОРТУНА</h2>
             <div style="text-align:center;"><div id="wheel" class="wheel"></div><button onclick="spinWheel()" id="spin-btn">КРУТИТЬ (50 💰)</button></div>
         </div>
+
         <div id="screen-shop" class="screen">
             <h2 style="text-align:center;">МАГАЗИН</h2>
-            <button onclick="buyEgg()">🥚 КУПИТЬ ЯЙЦО (100 💰)</button>
-            <button style="background:#22c55e;" onclick="buyBoost()">⚡️ КЛИК-БУСТ (200 💰)</button>
+            <button onclick="buyEgg('normal')">🥚 ОБЫЧНОЕ (100 💰)</button>
+            <button onclick="buyEgg('winter')" style="background: var(--winter-accent);">❄️ ЗИМНЕЕ (500 💰)</button>
+            <button style="background:#22c55e;" onclick="buyBoost()">⚡️ КЛИК-МНОЖИТЕЛЬ (200 💰)</button>
         </div>
+
         <div id="screen-inv" class="screen"><h2 style="text-align:center;">РЮКЗАК</h2><div id="ui-inventory"></div></div>
+
         <div id="screen-settings" class="screen">
             <h2 style="text-align:center;">НАСТРОЙКИ</h2>
+            <p style="text-align:center; opacity:0.5;">Версия: Beta 5.0</p>
             <p id="ui-username" style="text-align:center; font-weight:bold; color:var(--accent);"></p>
             <button onclick="toggleTheme()">🌓 СМЕНИТЬ ТЕМУ</button>
             <button onclick="location.reload()" style="background:#ef4444; margin-top:20px;">ВЫЙТИ ИЗ АККАУНТА</button>
@@ -97,55 +124,74 @@
     </div>
 
     <script>
-        // Инициализация базы данных из памяти браузера
+        function formatNum(n) {
+            if (n < 1000) return Math.floor(n);
+            const units = ["K", "M", "B", "T", "QA", "QI"];
+            let i = -1;
+            while (n >= 1000 && i < units.length - 1) { n /= 1000; i++; }
+            return n.toFixed(1).replace(/\.0$/, '') + units[i];
+        }
+
+        function createSnow() {
+            const container = document.getElementById('snow');
+            for (let i = 0; i < 50; i++) {
+                let flake = document.createElement('div');
+                flake.className = 'snowflake'; flake.innerText = '•';
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                flake.style.opacity = Math.random();
+                flake.style.fontSize = (Math.random() * 10 + 5) + 'px';
+                container.appendChild(flake);
+            }
+        }
+        createSnow();
+
+        function showInfo() {
+            showMsg("Demidovclicker\nВерсия: Beta 5.0\nРазработка: 2025", "var(--card)");
+        }
+
         let accountsRegistry = JSON.parse(localStorage.getItem('dc_registry')) || [];
         let curUser = null;
         let db = { pass: "", coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark' };
 
-        const PETS = [
-            { icon: "🐱", name: "Кот", rar: "common", ch: 30 },
-            { icon: "🐶", name: "Пёс", rar: "uncommon", ch: 20 },
-            { icon: "🦊", name: "Лиса", rar: "rare", ch: 10 },
-            { icon: "🦁", name: "Лев", rar: "ultra", ch: 7 },
-            { icon: "🦖", name: "Дино", rar: "legend", ch: 2 }
+        const NORMAL_PETS = [
+            { icon: "🐱", name: "Кот", rar: "common", ch: 40 },
+            { icon: "🐶", name: "Пёс", rar: "uncommon", ch: 30 },
+            { icon: "🦊", name: "Лиса", rar: "rare", ch: 15 },
+            { icon: "🦁", name: "Лев", rar: "ultra", ch: 10 },
+            { icon: "🦖", name: "Дино", rar: "legend", ch: 5 }
+        ];
+
+        const WINTER_PETS = [
+            { icon: "🐧", name: "Пингвин", rar: "common", ch: 40 },
+            { icon: "🐻‍❄️", name: "Пол. Медведь", rar: "uncommon", ch: 30 },
+            { icon: "🦌", name: "Олень", rar: "rare", ch: 15 },
+            { icon: "❄️", name: "Снежинка", rar: "ultra", ch: 10 },
+            { icon: "🐉", name: "Лед. Дракон", rar: "legend", ch: 5 }
         ];
 
         function showMsg(txt, color = "#38bdf8") {
             const t = document.getElementById('toast');
             t.innerText = txt; t.style.background = color; t.style.top = "20px";
-            setTimeout(() => t.style.top = "-100px", 2500);
+            setTimeout(() => t.style.top = "-100px", 3000);
         }
 
-        // ГЛАВНАЯ СИСТЕМА АККАУНТОВ
         function handleAuth(mode) {
             const u = document.getElementById('u-name').value.trim().toLowerCase();
             const p = document.getElementById('u-pass').value.trim();
-
-            if(u.length < 3 || p.length < 3) return showMsg("Минимум 3 символа!", "#ef4444");
-
+            if(u.length < 3) return showMsg("Короткий логин!");
             if(mode === 'reg') {
-                if(accountsRegistry.includes(u)) return showMsg("Логин уже занят!", "#ef4444");
-                
-                // Создаем нового пользователя
+                if(accountsRegistry.includes(u)) return showMsg("Логин занят!");
                 accountsRegistry.push(u);
                 localStorage.setItem('dc_registry', JSON.stringify(accountsRegistry));
-                
                 db = { pass: p, coins: 0, pets: [], lvl: 0, basePower: 1, theme: 'dark' };
-                curUser = u;
-                save(); // Сразу сохраняем данные в localStorage
-                showMsg("Аккаунт создан!", "#22c55e");
-                enterGame();
+                curUser = u; save(); enterGame();
             } else {
                 const savedData = localStorage.getItem('dc_user_' + u);
-                if(!accountsRegistry.includes(u) || !savedData) return showMsg("Пользователь не найден", "#ef4444");
-                
+                if(!savedData) return showMsg("Нет игрока");
                 const parsed = JSON.parse(savedData);
-                if(parsed.pass !== p) return showMsg("Неверный пароль!", "#ef4444");
-                
-                db = parsed;
-                curUser = u;
-                showMsg("С возвращением!");
-                enterGame();
+                if(parsed.pass !== p) return showMsg("Пароль!");
+                db = parsed; curUser = u; enterGame();
             }
         }
 
@@ -153,35 +199,50 @@
             document.getElementById('screen-auth').classList.remove('active');
             document.getElementById('ui-nav').style.display = 'flex';
             document.getElementById('set-btn').style.display = 'block';
-            document.getElementById('ui-username').innerText = "Аккаунт: " + curUser.toUpperCase();
-            applyTheme();
+            document.getElementById('info-btn').style.display = 'block';
+            document.getElementById('ui-username').innerText = "Игрок: " + curUser;
+            applyTheme(); updateUI();
             nav('screen-main', document.querySelector('.nav-item'));
         }
 
         function clickAction() {
-            let mult = Math.pow(1.1, Math.floor(db.coins / 200));
-            db.coins += db.basePower * mult;
+            db.coins += db.basePower;
             updateUI(); save();
         }
 
-        function save() {
-            if(curUser) {
-                localStorage.setItem('dc_user_' + curUser, JSON.stringify(db));
-            }
+        function buyEgg(type) {
+            const cost = type === 'normal' ? 100 : 500;
+            const pool = type === 'normal' ? NORMAL_PETS : WINTER_PETS;
+            if(db.coins < cost) return showMsg("Мало 💰");
+            db.coins -= cost;
+            const roll = Math.random() * 100;
+            let sum = 0, win = pool[0];
+            for(let p of pool) { sum += p.ch; if(roll <= sum) { win = p; break; } }
+            const ov = document.getElementById('hatch-overlay');
+            const egg = document.getElementById('hatch-egg');
+            const pet = document.getElementById('hatch-pet');
+            const name = document.getElementById('hatch-name');
+            egg.innerText = type === 'normal' ? "🥚" : "❄️";
+            ov.style.display = 'flex'; egg.style.display = 'block'; pet.style.display = 'none'; name.style.opacity = 0;
+            setTimeout(() => {
+                egg.style.display = 'none';
+                pet.style.display = 'block'; pet.innerText = win.icon; pet.classList.add('reveal-active');
+                name.innerText = win.name; name.style.opacity = 1;
+                setTimeout(() => {
+                    db.pets.unshift(win); ov.style.display = 'none';
+                    pet.classList.remove('reveal-active'); save(); updateUI();
+                }, 2000);
+            }, 2000);
         }
 
-        // Остальная логика игры (Яйцо, Колесо, Магазин)
         function updateUI() {
-            let mult = Math.pow(1.1, Math.floor(db.coins / 200));
-            document.getElementById('ui-coins').innerText = Math.floor(db.coins) + " 💰";
+            document.getElementById('ui-coins').innerText = formatNum(db.coins) + " 💰";
             document.getElementById('ui-lvl').innerText = db.lvl;
-            document.getElementById('ui-power').innerText = (db.basePower * mult).toFixed(1);
-
+            document.getElementById('ui-power').innerText = formatNum(db.basePower);
             const inventory = document.getElementById('ui-inventory');
             inventory.innerHTML = "";
             const counts = {};
             db.pets.forEach(p => counts[p.name] = (counts[p.name] || 0) + 1);
-
             const rendered = new Set();
             db.pets.forEach(p => {
                 if (!rendered.has(p.name)) {
@@ -194,27 +255,6 @@
             });
         }
 
-        function buyEgg() {
-            if(db.coins < 100) return showMsg("Мало 💰");
-            db.coins -= 100;
-            const roll = Math.random() * 100;
-            let sum = 0, win = PETS[0];
-            for(let p of PETS) { sum += p.ch; if(roll <= sum) { win = p; break; } }
-            const ov = document.getElementById('hatch-overlay');
-            ov.style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('hatch-egg').style.display = 'none';
-                const p = document.getElementById('hatch-pet');
-                p.style.display = 'block'; p.innerText = win.icon; p.classList.add('reveal-active');
-                document.getElementById('hatch-name').innerText = win.name;
-                document.getElementById('hatch-name').style.opacity = 1;
-                setTimeout(() => {
-                    db.pets.unshift(win); ov.style.display = 'none';
-                    p.classList.remove('reveal-active'); save(); updateUI();
-                }, 2000);
-            }, 2000);
-        }
-
         function spinWheel() {
             if(db.coins < 50) return showMsg("Нужно 50 💰");
             db.coins -= 50;
@@ -225,26 +265,34 @@
                 const actual = deg % 360;
                 if(actual < 90) { db.coins += 500; showMsg("+500 💰!"); }
                 else if(actual < 180) { showMsg("Пусто"); }
-                else if(actual < 270) { const p = PETS[0]; db.pets.unshift(p); showMsg("Выпал " + p.name); }
+                else if(actual < 270) { db.pets.unshift(NORMAL_PETS[0]); showMsg("Выпал Кот"); }
                 else { db.coins += 100; showMsg("+100 💰!"); }
                 updateUI(); save();
             }, 4000);
         }
 
-        function buyBoost() { if(db.coins < 200) return showMsg("Мало 💰"); db.coins -= 200; db.basePower += 0.5; save(); updateUI(); }
+        function buyBoost() { 
+            if(db.coins < 200) return showMsg("Мало 💰"); 
+            db.coins -= 200; 
+            db.basePower *= 25; // Умножаем на 25
+            save(); 
+            updateUI(); 
+            showMsg("Множитель x25!", "#22c55e");
+        }
+
         function toggleTheme() { db.theme = db.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save(); }
         function applyTheme() { document.body.className = db.theme === 'light' ? 'light-theme' : ''; }
+        function save() { if(curUser) localStorage.setItem('dc_user_' + curUser, JSON.stringify(db)); }
         function nav(id, el) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(el.classList.contains('nav-item')) el.classList.add('active');
+            if(el && el.classList.contains('nav-item')) el.classList.add('active');
             updateUI();
         }
         function tryLevelUp() {
-            let up = false;
-            if(db.lvl === 0 && db.coins >= 500 && db.pets.some(p => p.name === "Кот")) { db.lvl=1; db.coins+=100; up=true; }
-            if(up) { showMsg("LEVEL UP!", "#eab308"); save(); updateUI(); } else showMsg("Условия не выполнены!");
+            if(db.lvl === 0 && db.coins >= 500 && db.pets.some(p => p.name === "Кот")) { db.lvl=1; db.coins+=100; showMsg("LEVEL UP!"); save(); updateUI(); }
+            else showMsg("Нужен Кот и 500 монет!");
         }
     </script>
 </body>
