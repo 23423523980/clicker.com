@@ -23,6 +23,11 @@
             user-select: none; touch-action: manipulation;
         }
 
+        /* Эффекты: Снег и Сердечки */
+        #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .particle { position: absolute; top: -20px; animation: fall linear forwards; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
         /* Анимация яйца */
         #egg-opening-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -33,66 +38,62 @@
         .reveal-anim { animation: reveal 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards; font-size: 120px; }
         @keyframes reveal { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
 
-        #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .particle { position: absolute; top: -20px; animation: fall linear forwards; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
         .click-plus { position: absolute; color: var(--accent-color); font-weight: 900; font-size: 35px; pointer-events: none; z-index: 100; }
 
         /* Навигация */
         .nav-panel { position: absolute; display: flex; z-index: 10; gap: 12px; }
         @media (min-width: 769px) { .nav-panel { top: 20px; left: 20px; flex-direction: column; align-items: center; } }
-        @media (max-width: 768px) { .nav-panel { bottom: 20px; left: 50%; transform: translateX(-50%); flex-direction: row; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 25px; backdrop-filter: blur(10px); width: 85%; justify-content: space-around; } }
+        @media (max-width: 768px) { .nav-panel { bottom: 15px; left: 50%; transform: translateX(-50%); flex-direction: row; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; backdrop-filter: blur(10px); width: 90%; justify-content: space-around; } }
         .nav-item { text-align: center; cursor: pointer; transition: 0.2s; }
-        .nav-item:hover { transform: scale(1.15); }
-        .nav-icon { font-size: 26px; display: block; }
-        .key-hint { font-size: 10px; opacity: 0.6; font-weight: 700; display: block; }
+        .nav-icon { font-size: 24px; display: block; }
+        .key-hint { font-size: 9px; opacity: 0.6; font-weight: 700; display: block; }
 
-        /* Окна */
+        /* Модальные окна */
         .modal {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: var(--container-bg); padding: 25px; border-radius: 25px;
-            box-shadow: 0 0 60px rgba(0,0,0,0.6); z-index: 30; text-align: center; width: 340px; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 0 60px rgba(0,0,0,0.6); z-index: 100; text-align: center; width: 320px; max-height: 80vh; overflow-y: auto;
         }
-        .modal-h { margin-top: 0; color: var(--accent-color); text-transform: uppercase; font-weight: 900; letter-spacing: 1px; }
-        .shop-item { background: rgba(128,128,128,0.15); padding: 12px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .buy-btn { background: #42e695; border: none; padding: 7px 15px; border-radius: 8px; cursor: pointer; font-weight: 900; color: #1a1a1a; }
+        .modal-h { margin-top: 0; color: var(--accent-color); text-transform: uppercase; font-weight: 900; }
+        .shop-item { background: rgba(128,128,128,0.15); padding: 10px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .buy-btn { background: #42e695; border: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: 900; }
         
-        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .pet-card { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 10px; font-size: 0.7rem; border-bottom: 4px solid #ccc; }
 
-        /* Цвета */
-        .color-options { display: flex; justify-content: space-around; margin: 20px 0; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 18px; }
+        .color-options { display: flex; justify-content: space-around; margin: 15px 0; }
         .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
-        .color-dot.active { border-color: #fff; transform: scale(1.15); }
+        .color-dot.active { border-color: #fff; transform: scale(1.1); }
 
-        /* Флаги */
-        .lang-container { background: rgba(128,128,128,0.1); padding: 10px; border-radius: 15px; margin: 15px 0; display: flex; justify-content: center; gap: 30px; }
-        .lang-item { position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 55px; height: 55px; justify-content: center; overflow: hidden; border-radius: 10px; }
-        .flag-bg { position: absolute; width: 100%; height: 100%; opacity: 0.6; z-index: -1; }
-        .flag-ru { background: linear-gradient(#fff 33.3%, #0039a6 33.3%, #0039a6 66.6%, #d52b1e 66.6%); }
-        .flag-us { background: linear-gradient(to bottom, #b22234 0%, #b22234 14.2%, #fff 14.2%, #fff 28.4%, #b22234 28.4%, #b22234 42.6%, #fff 42.6%, #fff 56.8%, #b22234 56.8%, #b22234 71%, #fff 71%, #fff 85.2%, #b22234 85.2%); position: relative; }
-        .flag-us::before { content: ''; position: absolute; top: 0; left: 0; width: 45%; height: 50%; background: #3c3b6e; }
+        .lang-container { background: rgba(128,128,128,0.1); padding: 10px; border-radius: 15px; margin: 15px 0; display: flex; justify-content: center; gap: 20px; }
+        .lang-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 1.5rem; }
+        .lang-label { font-size: 0.7rem; font-weight: 900; margin-top: 3px; }
 
         /* Фортуна */
         .fortune-container { position: relative; width: 100%; height: 90px; background: #000; border: 4px solid var(--accent-color); border-radius: 15px; overflow: hidden; margin: 20px 0; }
         .fortune-tape { display: flex; position: absolute; left: 0; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
         .fortune-slot { min-width: 70px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 30px; border-right: 1px solid #222; }
-        .fortune-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 5px; height: 100%; background: #ff4e50; z-index: 5; box-shadow: 0 0 10px rgba(255,78,80,0.5); }
+        .fortune-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 5px; height: 100%; background: #ff4e50; z-index: 5; }
 
+        /* Кнопка клика */
+        #game-ui { display: none; text-align: center; width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; }
         #click-button {
-            width: 230px; height: 230px; border-radius: 50%; border: none;
+            width: 220px; height: 220px; border-radius: 50%; border: none;
             background: linear-gradient(135deg, var(--btn-grad-start), var(--btn-grad-end));
-            box-shadow: 0 12px 50px rgba(0,0,0,0.5); cursor: pointer;
-            transition: transform 0.05s; outline: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); cursor: pointer;
+            transition: transform 0.05s; outline: none; margin: 0 auto;
         }
-        #click-button:active { transform: scale(0.9); }
+        @media (max-width: 768px) {
+            #click-button { width: 180px; height: 180px; }
+            #score-container { font-size: 4rem !important; }
+        }
+        #click-button:active { transform: scale(0.92); }
 
-        .auth-container { background: var(--container-bg); padding: 35px; border-radius: 30px; text-align: center; width: 320px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-        input { width: 88%; padding: 14px; margin: 10px 0; border-radius: 12px; border: none; background: var(--input-bg); color: var(--input-text); font-family: 'Montserrat'; font-weight: 700; }
+        .auth-container { background: var(--container-bg); padding: 35px; border-radius: 30px; text-align: center; width: 300px; z-index: 10; }
+        input { width: 90%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; background: var(--input-bg); color: var(--input-text); font-family: 'Montserrat'; }
         .menu-btn { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; border: none; border-radius: 12px; background: #444; color: white; font-weight: 800; font-family: 'Montserrat'; text-transform: uppercase; }
         
-        #game-ui { display: none; text-align: center; }
-        #toast { visibility: hidden; min-width: 220px; background: #333; color: #fff; text-align: center; border-radius: 15px; padding: 18px; position: fixed; z-index: 1000; left: 50%; bottom: 60px; transform: translateX(-50%); opacity: 0; transition: 0.4s; font-weight: 700; }
+        #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 15px; padding: 15px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.4s; }
         #toast.show { visibility: visible; opacity: 1; }
 
         .rarity-0 { border-color: var(--rarity-0) !important; color: var(--rarity-0); }
@@ -109,12 +110,12 @@
 
     <div id="egg-opening-overlay">
         <div id="opening-egg-icon" class="egg-anim">🥚</div>
-        <h2 id="opening-text" style="color: white; margin-top: 25px; font-weight: 900;">ОТКРЫТИЕ...</h2>
+        <h2 id="opening-text" style="color: white; margin-top: 25px;">ОТКРЫТИЕ...</h2>
         <div id="pet-reveal" style="display:none; text-align:center;">
             <div id="revealed-pet-emoji" class="reveal-anim"></div>
-            <h1 id="revealed-pet-name" style="margin: 15px 0; font-size: 2.5rem; font-weight: 900;"></h1>
-            <h3 id="revealed-pet-rarity" style="text-transform: uppercase; letter-spacing: 2px;"></h3>
-            <button class="menu-btn" style="width:180px; background:var(--accent-color); color:#000; margin-top: 20px;" onclick="closeEggAnimation()">OK</button>
+            <h1 id="revealed-pet-name"></h1>
+            <h3 id="revealed-pet-rarity"></h3>
+            <button class="menu-btn" style="width:150px; background:var(--accent-color); color:#000;" onclick="closeEggAnimation()">OK</button>
         </div>
     </div>
     
@@ -123,28 +124,25 @@
         <div class="nav-item" onclick="toggleModal('shop-modal')"><span class="nav-icon">🛒</span><span class="key-hint">[S]</span></div>
         <div class="nav-item" onclick="toggleModal('fortune-modal')"><span class="nav-icon">🎡</span><span class="key-hint">[F]</span></div>
         <div class="nav-item" onclick="toggleModal('inventory-modal')"><span class="nav-icon">🎒</span><span class="key-hint">[I]</span></div>
-        <div class="nav-item" onclick="showSoon('trade')"><span class="nav-icon">🤝</span><span class="key-hint">[R]</span></div>
     </div>
 
     <div id="auth-ui" class="auth-container">
-        <div class="brand-name" style="font-size: 2rem;"><b>Idi nahui clicker</b></div>
+        <div style="font-weight:900; color:var(--accent-color); font-size:1.8rem; margin-bottom:10px;">IDI NAHUI CLICKER</div>
         <div class="lang-container">
-            <div class="lang-item" onclick="setLang('ru')"><div class="flag-bg flag-ru"></div><span class="lang-label">RU</span></div>
-            <div class="lang-item" onclick="setLang('en')"><div class="flag-bg flag-us"></div><span class="lang-label">US</span></div>
+            <div class="lang-item" onclick="setLang('ru')">🇷🇺<span class="lang-label">RU</span></div>
+            <div class="lang-item" onclick="setLang('en')">🇺🇸<span class="lang-label">EN</span></div>
         </div>
-        <input type="text" id="username" placeholder="Логин / Login">
-        <input type="password" id="password" placeholder="Пароль / Password">
+        <input type="text" id="username" placeholder="Логин">
+        <input type="password" id="password" placeholder="Пароль">
         <button class="menu-btn" style="background: #ff4e50; color: white;" id="main-auth-btn" onclick="handleAuth()">Войти</button>
-        <span style="display:block; margin-top:25px; cursor:pointer; font-size:0.85rem; opacity:0.8; font-weight: 700;" onclick="toggleMode()" id="toggle-mode">Регистрация</span>
+        <span style="display:block; margin-top:20px; cursor:pointer; font-size:0.8rem; opacity:0.7;" onclick="toggleMode()" id="toggle-mode">Регистрация</span>
     </div>
 
     <div id="shop-modal" class="modal">
         <h2 class="modal-h" id="h-shop">Магазин</h2>
-        <div id="egg-list">
-            <div class="shop-item"><span id="egg1-name">💩 Яйцо 1</span> <b>200</b> <button class="buy-btn" onclick="startEggOpening(1)">BUY</button></div>
-            <div class="shop-item"><span id="egg2-name">🖕 Яйцо 2</span> <b>500</b> <button class="buy-btn" onclick="startEggOpening(2)">BUY</button></div>
-            <div class="shop-item"><span id="egg3-name">🍑 Яйцо 3</span> <b>1000</b> <button class="buy-btn" onclick="startEggOpening(3)">BUY</button></div>
-        </div>
+        <div class="shop-item"><span id="egg1-name">💩 Яйцо 1</span> <b>200</b> <button class="buy-btn" onclick="startEggOpening(1)">BUY</button></div>
+        <div class="shop-item"><span id="egg2-name">🖕 Яйцо 2</span> <b>500</b> <button class="buy-btn" onclick="startEggOpening(2)">BUY</button></div>
+        <div class="shop-item"><span id="egg3-name">🍑 Яйцо 3</span> <b>1000</b> <button class="buy-btn" onclick="startEggOpening(3)">BUY</button></div>
         <button class="menu-btn" onclick="closeAll()" id="btn-close-shop">Закрыть</button>
     </div>
 
@@ -166,12 +164,17 @@
 
     <div id="settings-panel" class="modal">
         <h2 class="modal-h" id="h-set">Настройки</h2>
-        <div style="margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.15); border-radius: 12px;">
-            <span id="set-acc-label" style="font-size: 0.8rem; opacity: 0.7;">Аккаунт:</span><br>
-            <b id="current-user-name" style="color: var(--accent-color); font-size: 1.2rem;">---</b>
+        <div style="margin-bottom: 10px; background:rgba(0,0,0,0.1); padding:10px; border-radius:10px;">
+            <span id="set-acc-label">Аккаунт:</span> <b id="current-user-name">---</b>
         </div>
-        <button class="menu-btn" id="btn-theme" onclick="toggleTheme()">Сменить тему</button>
+        <button class="menu-btn" onclick="toggleTheme()" id="btn-theme">Тема</button>
         
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="menu-btn" style="flex:1; background:#00a8ff" onclick="setEffect('snow')">❄️ Снег</button>
+            <button class="menu-btn" style="flex:1; background:#ff4e50" onclick="setEffect('hearts')">❤️ Сердца</button>
+        </div>
+        <button class="menu-btn" style="background:#555; font-size:0.7rem;" onclick="setEffect('none')">Убрать эффекты</button>
+
         <div class="color-options">
             <div class="color-dot" id="dot-red" style="background: linear-gradient(#ff4e50, #960000);" onclick="changeBtnColor('#ff4e50', '#960000', 'red')"></div>
             <div class="color-dot" id="dot-blue" style="background: linear-gradient(#4facfe, #003366);" onclick="changeBtnColor('#4facfe', '#003366', 'blue')"></div>
@@ -180,18 +183,18 @@
         </div>
 
         <div class="lang-container">
-            <div class="lang-item" onclick="setLang('ru')"><div class="flag-bg flag-ru"></div><span class="lang-label">RU</span></div>
-            <div class="lang-item" onclick="setLang('en')"><div class="flag-bg flag-us"></div><span class="lang-label">US</span></div>
+            <div class="lang-item" onclick="setLang('ru')">🇷🇺<span class="lang-label">RU</span></div>
+            <div class="lang-item" onclick="setLang('en')">🇺🇸<span class="lang-label">EN</span></div>
         </div>
-        <button class="menu-btn" style="background: #ff4e50; margin-top: 20px;" onclick="location.reload()" id="btn-logout">Выйти</button>
-        <button class="menu-btn" onclick="closeAll()" id="btn-close-settings">Закрыть</button>
+        <button class="menu-btn" style="background: #ff4e50;" onclick="location.reload()">Выйти</button>
+        <button class="menu-btn" onclick="closeAll()">Закрыть</button>
     </div>
 
     <div id="game-ui">
-        <h1 class="brand-name" style="font-size: 2.5rem; margin-bottom: 5px;"><b>Idi nahui clicker</b></h1>
-        <div class="subtitle" id="game-sub" style="font-weight: 700; opacity: 0.7; margin-bottom: 20px;">я пошел/пошла нахуй</div>
-        <div id="score-container" style="font-size: 5rem; font-weight: 900; line-height: 1;">0</div>
-        <div id="game-unit" style="font-weight: 900; color: var(--accent-color); font-size: 1.8rem; margin-bottom: 30px;">раз</div>
+        <h1 style="font-weight:900; color:var(--accent-color); margin:0;">IDI NAHUI</h1>
+        <div id="game-sub" style="opacity:0.7; font-weight:700;">я пошел/пошла нахуй</div>
+        <div id="score-container" style="font-size: 5rem; font-weight: 900; margin: 10px 0;">0</div>
+        <div id="game-unit" style="font-weight: 900; color: var(--accent-color); font-size: 1.5rem; margin-bottom: 20px;">раз</div>
         <button id="click-button"></button>
     </div>
 
@@ -199,7 +202,7 @@
         let isLoginMode = true; let currentUser = null;
         let currentLang = localStorage.getItem('lang') || 'ru';
         let users = JSON.parse(localStorage.getItem('clicker_users')) || {};
-        let isKeyPressed = false;
+        let effectInterval = null;
 
         const PETS_DATA = {
             egg1: [{n: "Муха", en: "Fly", e: "🪰", r: 0}, {n: "Крыса", en: "Rat", e: "🐀", r: 1}, {n: "Скунс", en: "Skunk", e: "🦨", r: 2}, {n: "Зомби", en: "Zombie", e: "🧟", r: 3}, {n: "Король Навоза", en: "Dung King", e: "👑", r: 4}],
@@ -214,16 +217,16 @@
 
         const texts = {
             ru: { 
-                login: "Войти", reg: "Создать аккаунт", noAcc: "Нет аккаунта? Регистрация", hasAcc: "Есть аккаунт? Войти", fill: "Заполни все поля!", err: "Ошибка входа!", 
-                shop: "Магазин", inv: "Инвентарь", sub: "я пошел/пошла нахуй", unit: "раз", logout: "Выйти", close: "Закрыть",
-                set: "Настройки", theme: "Сменить тему", spin: "КРУТИТЬ (50)", opening: "ОТКРЫТИЕ...", low: "Недостаточно очков!",
-                accLabel: "Аккаунт:", egg1: "💩 Яйцо 1", egg2: "🖕 Яйцо 2", egg3: "🍑 Яйцо 3", tradeSoon: "Трейды скоро!"
+                login: "Войти", reg: "Создать аккаунт", noAcc: "Регистрация", hasAcc: "Вход", fill: "Заполни поля!", 
+                shop: "Магазин", inv: "Инвентарь", sub: "я пошел/пошла нахуй", unit: "раз", 
+                set: "Настройки", theme: "Сменить тему", spin: "КРУТИТЬ (50)", opening: "ОТКРЫТИЕ...", low: "Мало очков!",
+                accLabel: "Аккаунт:", egg1: "💩 Яйцо 1", egg2: "🖕 Яйцо 2", egg3: "🍑 Яйцо 3"
             },
             en: { 
-                login: "Login", reg: "Sign Up", noAcc: "No account? Register", hasAcc: "Have an account? Login", fill: "Fill all fields!", err: "Login Error!", 
-                shop: "Shop", inv: "Backpack", sub: "i went to f**k off", unit: "times", logout: "Logout", close: "Close",
-                set: "Settings", theme: "Change Theme", spin: "SPIN (50)", opening: "OPENING...", low: "Not enough points!",
-                accLabel: "Account:", egg1: "💩 Egg 1", egg2: "🖕 Egg 2", egg3: "🍑 Egg 3", tradeSoon: "Trades soon!"
+                login: "Login", reg: "Sign Up", noAcc: "Register", hasAcc: "Login", fill: "Fill fields!", 
+                shop: "Shop", inv: "Backpack", sub: "i went to f**k off", unit: "times", 
+                set: "Settings", theme: "Theme", spin: "SPIN (50)", opening: "OPENING...", low: "No points!",
+                accLabel: "Account:", egg1: "💩 Egg 1", egg2: "🖕 Egg 2", egg3: "🍑 Egg 3"
             }
         };
 
@@ -234,6 +237,23 @@
             changeBtnColor(savedColor.start, savedColor.end, savedColor.id);
             initFortune();
         };
+
+        function setEffect(type) {
+            clearInterval(effectInterval);
+            document.getElementById('particles-container').innerHTML = '';
+            if (type === 'none') return;
+            effectInterval = setInterval(() => {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerText = type === 'snow' ? '❄️' : '❤️';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                p.style.opacity = Math.random();
+                document.getElementById('particles-container').appendChild(p);
+                setTimeout(() => p.remove(), 5000);
+            }, 200);
+        }
 
         function setLang(l) {
             currentLang = l; localStorage.setItem('lang', l);
@@ -247,11 +267,6 @@
             document.getElementById('h-set').innerText = t.set;
             document.getElementById('btn-theme').innerText = t.theme;
             document.getElementById('set-acc-label').innerText = t.accLabel;
-            document.getElementById('btn-close-shop').innerText = t.close;
-            document.getElementById('btn-close-inv').innerText = t.close;
-            document.getElementById('btn-close-settings').innerText = t.close;
-            document.getElementById('btn-close-fortune').innerText = t.close;
-            document.getElementById('btn-logout').innerText = t.logout;
             document.getElementById('btn-spin').innerText = t.spin;
             document.getElementById('opening-text').innerText = t.opening;
             document.getElementById('egg1-name').innerText = t.egg1;
@@ -272,21 +287,19 @@
                     document.getElementById('current-user-name').innerText=u; 
                     document.getElementById('score-container').innerText=users[u].score;
                     updateInvGrid();
-                } else showToast(texts[currentLang].err);
+                } else showToast("Error!");
             } else {
-                if (users[u]) showToast("User exists!");
-                else { users[u] = {password:p, score:0, pets:[]}; save(); toggleMode(); showToast("Success!"); }
+                if (users[u]) showToast("Exists!");
+                else { users[u] = {password:p, score:0, pets:[]}; save(); toggleMode(); }
             }
         }
 
         function startEggOpening(type) {
             let cost = [0, 200, 500, 1000][type];
             if (users[currentUser].score < cost) return showToast(texts[currentLang].low);
-            
             users[currentUser].score -= cost;
             document.getElementById('score-container').innerText = users[currentUser].score;
             closeAll();
-            
             const overlay = document.getElementById('egg-opening-overlay');
             overlay.style.display = 'flex';
             document.getElementById('opening-egg-icon').style.display = 'block';
@@ -296,26 +309,20 @@
             setTimeout(() => {
                 const pool = PETS_DATA['egg'+type];
                 let rand = Math.random() * 100;
-                let rIdx = rand < 3 ? 4 : (rand < 12 ? 3 : (rand < 30 ? 2 : (rand < 60 ? 1 : 0)));
+                let rIdx = rand < 5 ? 4 : (rand < 15 ? 3 : (rand < 35 ? 2 : (rand < 65 ? 1 : 0)));
                 const pet = pool[rIdx];
-                
                 users[currentUser].pets.push({n: pet.n, en: pet.en, e: pet.e, r: rIdx});
-                save();
-                updateInvGrid();
-
+                save(); updateInvGrid();
                 document.getElementById('opening-egg-icon').style.display = 'none';
                 document.getElementById('opening-text').style.display = 'none';
                 const reveal = document.getElementById('pet-reveal');
                 reveal.style.display = 'block';
                 document.getElementById('revealed-pet-emoji').innerText = pet.e;
                 document.getElementById('revealed-pet-name').innerText = (currentLang === 'ru' ? pet.n : pet.en);
-                const rarityLabel = document.getElementById('revealed-pet-rarity');
-                rarityLabel.innerText = rarityNames[currentLang][rIdx];
-                rarityLabel.className = `rarity-${rIdx}`;
+                document.getElementById('revealed-pet-rarity').innerText = rarityNames[currentLang][rIdx];
+                document.getElementById('revealed-pet-rarity').className = `rarity-${rIdx}`;
             }, 2500);
         }
-
-        function closeEggAnimation() { document.getElementById('egg-opening-overlay').style.display = 'none'; }
 
         function spinFortune() {
             if (users[currentUser].score < 50) return showToast(texts[currentLang].low);
@@ -323,14 +330,13 @@
             document.getElementById('score-container').innerText = users[currentUser].score;
             const tape = document.getElementById('fortune-tape');
             const randomSlot = Math.floor(Math.random() * 10) + 40; 
-            tape.style.transform = `translateX(-${randomSlot * 70 - 135}px)`;
+            tape.style.transform = `translateX(-${randomSlot * 70 - 125}px)`;
             setTimeout(() => {
                 const items = ['💩', '+10', '💩', '+100', '🎡', '💎', '💩', '+10', '💩', '+50'];
                 const win = items[randomSlot % 10];
                 if(win === '💎') users[currentUser].score += 1000;
                 else if(win.includes('+')) users[currentUser].score += parseInt(win.replace('+',''));
-                save();
-                document.getElementById('score-container').innerText = users[currentUser].score;
+                save(); document.getElementById('score-container').innerText = users[currentUser].score;
                 showToast(win);
                 setTimeout(() => { tape.style.transition='none'; tape.style.transform='translateX(0)'; setTimeout(()=>tape.style.transition='transform 4s cubic-bezier(0.1, 0, 0.1, 1)', 50); }, 500);
             }, 4100);
@@ -350,7 +356,7 @@
             users[currentUser].pets.forEach(p => {
                 const div = document.createElement('div');
                 div.className = `pet-card rarity-${p.r}`;
-                div.innerHTML = `<span style="font-size:1.8rem">${p.e}</span><br><b>${currentLang === 'ru' ? p.n : p.en}</b>`;
+                div.innerHTML = `<span style="font-size:1.5rem">${p.e}</span><br><b>${currentLang === 'ru' ? p.n : p.en}</b>`;
                 grid.appendChild(div);
             });
         }
@@ -364,7 +370,7 @@
             anim.style.left = (e ? e.pageX : window.innerWidth/2) + 'px';
             anim.style.top = (e ? e.pageY : window.innerHeight/2) + 'px';
             document.body.appendChild(anim);
-            anim.animate([{opacity:1},{transform:'translateY(-120px)',opacity:0}], 600);
+            anim.animate([{opacity:1},{transform:'translateY(-100px)',opacity:0}], 600);
             setTimeout(() => anim.remove(), 600);
         }
 
@@ -382,7 +388,7 @@
             closeAll(); if(!isOpen) m.style.display = 'block';
         }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-        function showSoon(key) { showToast(texts[currentLang].tradeSoon); }
+        function closeEggAnimation() { document.getElementById('egg-opening-overlay').style.display = 'none'; }
         function save() { localStorage.setItem('clicker_users', JSON.stringify(users)); }
         function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "show"; setTimeout(() => t.className = "", 2500); }
         function toggleMode() { isLoginMode = !isLoginMode; setLang(currentLang); }
@@ -390,8 +396,7 @@
         
         document.getElementById('click-button').addEventListener('click', (e) => doClick(e));
         window.addEventListener('keydown', (e) => {
-            if (!currentUser || isKeyPressed) return;
-            isKeyPressed = true;
+            if (!currentUser) return;
             const key = e.key.toLowerCase();
             if (key === 'e' || key === 'у') doClick(null);
             if (key === 'o' || key === 'щ') toggleModal('settings-panel');
@@ -399,7 +404,7 @@
             if (key === 'f' || key === 'а') toggleModal('fortune-modal');
             if (key === 'i' || key === 'ш') toggleModal('inventory-modal');
         });
-        window.addEventListener('keyup', () => isKeyPressed = false);
     </script>
 </body>
 </html>
+
