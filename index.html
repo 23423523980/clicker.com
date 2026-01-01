@@ -3,408 +3,1292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Idi nahui clicker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="description" content="Idi Nahui Clicker - Ultimate Edition Beta 8.0">
+    <title>Idi Nahui Clicker: Ultimate 8.0</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;700;900&family=Rubik+Glitch&family=Shojumaru&display=swap" rel="stylesheet">
+
     <style>
+        /* * ======================================================================================
+         * 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ТЕМЫ (ROOT VARIABLES)
+         * ======================================================================================
+         */
         :root {
-            --bg-color: #1a1a1a; --container-bg: #2a2a2a; --text-color: #ffffff;
-            --accent-color: #f9d423; --btn-grad-start: #ff4e50; --btn-grad-end: #960000;
-            --input-bg: #333; --input-text: #ffffff;
-            --rarity-0: #3498db; --rarity-1: #9b59b6; --rarity-2: #2ecc71; --rarity-3: #e74c3c; --rarity-4: #f1c40f;
+            /* Базовая темная тема */
+            --bg-color: #050505;
+            --bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            
+            --panel-bg: rgba(30, 30, 30, 0.85);
+            --panel-border: 1px solid rgba(255, 255, 255, 0.08);
+            --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            
+            --text-main: #ffffff;
+            --text-secondary: #aaaaaa;
+            
+            --accent-color: #ff4e50;
+            --accent-glow: rgba(255, 78, 80, 0.6);
+            
+            --btn-grad-start: #ff4e50;
+            --btn-grad-end: #960000;
+            
+            --input-bg: rgba(0, 0, 0, 0.5);
+            --input-text: #fff;
+            
+            /* Редкости предметов */
+            --rarity-common: #3498db;
+            --rarity-rare: #2ecc71;
+            --rarity-ultra: #ff2a2a;
+            --rarity-legend: #f1c40f;
+            
+            /* Системные */
+            --transition-speed: 0.3s;
+            --glass-blur: blur(12px);
         }
-        .light-theme {
-            --bg-color: #f0f0f0; --container-bg: #ffffff; --text-color: #1a1a1a;
-            --accent-color: #ff4e50; --input-bg: #e0e0e0; --input-text: #1a1a1a;
+
+        /* Светлая тема */
+        body.light-mode {
+            --bg-color: #f0f2f5;
+            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #e6e9f0 100%);
+            
+            --panel-bg: rgba(255, 255, 255, 0.9);
+            --panel-border: 1px solid rgba(0, 0, 0, 0.05);
+            --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            
+            --text-main: #111111;
+            --text-secondary: #555555;
+            
+            --accent-color: #ff4e50;
+            
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --input-text: #000;
         }
+
+        /* * ======================================================================================
+         * 2. БАЗОВЫЕ НАСТРОЙКИ (RESET & BASE)
+         * ======================================================================================
+         */
+        * {
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
         body {
-            margin: 0; background-color: var(--bg-color); color: var(--text-color);
-            font-family: 'Montserrat', sans-serif; display: flex; align-items: center;
-            justify-content: center; height: 100vh; overflow: hidden; transition: 0.3s;
-            user-select: none; touch-action: manipulation;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-gradient);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            transition: background 0.5s ease, color 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Эффекты: Снег и Сердечки */
-        #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .particle { position: absolute; top: -20px; animation: fall linear forwards; pointer-events: none; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-
-        /* Анимация яйца */
-        #egg-opening-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 500; align-items: center; justify-content: center; flex-direction: column;
+        /* Фоновый шум для текстуры */
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
         }
-        .egg-anim { font-size: 100px; animation: shake 0.5s infinite; }
-        @keyframes shake { 0% { transform: rotate(0); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(0); } }
-        .reveal-anim { animation: reveal 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards; font-size: 120px; }
-        @keyframes reveal { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
 
-        .click-plus { position: absolute; color: var(--accent-color); font-weight: 900; font-size: 35px; pointer-events: none; z-index: 100; }
-
-        /* Навигация */
-        .nav-panel { position: absolute; display: flex; z-index: 10; gap: 12px; }
-        @media (min-width: 769px) { .nav-panel { top: 20px; left: 20px; flex-direction: column; align-items: center; } }
-        @media (max-width: 768px) { .nav-panel { bottom: 15px; left: 50%; transform: translateX(-50%); flex-direction: row; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; backdrop-filter: blur(10px); width: 90%; justify-content: space-around; } }
-        .nav-item { text-align: center; cursor: pointer; transition: 0.2s; }
-        .nav-icon { font-size: 24px; display: block; }
-        .key-hint { font-size: 9px; opacity: 0.6; font-weight: 700; display: block; }
-
-        /* Модальные окна */
-        .modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--container-bg); padding: 25px; border-radius: 25px;
-            box-shadow: 0 0 60px rgba(0,0,0,0.6); z-index: 100; text-align: center; width: 320px; max-height: 80vh; overflow-y: auto;
+        /* Канвас для частиц */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
-        .modal-h { margin-top: 0; color: var(--accent-color); text-transform: uppercase; font-weight: 900; }
-        .shop-item { background: rgba(128,128,128,0.15); padding: 10px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .buy-btn { background: #42e695; border: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: 900; }
+
+        /* * ======================================================================================
+         * 3. ТИПОГРАФИКА И ЗАГОЛОВКИ (TYPOGRAPHY)
+         * ======================================================================================
+         */
         
-        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .pet-card { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 10px; font-size: 0.7rem; border-bottom: 4px solid #ccc; }
+        /* Нереально красивый радужный заголовок */
+        .ultimate-title {
+            font-family: 'Shojumaru', cursive;
+            font-size: 3.5rem;
+            text-align: center;
+            margin: 0;
+            line-height: 1.2;
+            z-index: 5;
+            position: relative;
+            
+            /* Радужная магия */
+            background: linear-gradient(
+                to right, 
+                #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000
+            );
+            background-size: 300% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            
+            animation: rainbowFlow 4s linear infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+        }
 
-        .color-options { display: flex; justify-content: space-around; margin: 15px 0; }
-        .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
-        .color-dot.active { border-color: #fff; transform: scale(1.1); }
+        @keyframes rainbowFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
 
-        .lang-container { background: rgba(128,128,128,0.1); padding: 10px; border-radius: 15px; margin: 15px 0; display: flex; justify-content: center; gap: 20px; }
-        .lang-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 1.5rem; }
-        .lang-label { font-size: 0.7rem; font-weight: 900; margin-top: 3px; }
+        .subtitle-text {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            opacity: 0.8;
+            z-index: 5;
+        }
 
-        /* Фортуна */
-        .fortune-container { position: relative; width: 100%; height: 90px; background: #000; border: 4px solid var(--accent-color); border-radius: 15px; overflow: hidden; margin: 20px 0; }
-        .fortune-tape { display: flex; position: absolute; left: 0; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
-        .fortune-slot { min-width: 70px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 30px; border-right: 1px solid #222; }
-        .fortune-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 5px; height: 100%; background: #ff4e50; z-index: 5; }
+        /* Счет */
+        .score-big {
+            font-size: 6.5rem;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+            z-index: 5;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
 
-        /* Кнопка клика */
-        #game-ui { display: none; text-align: center; width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; }
-        #click-button {
-            width: 220px; height: 220px; border-radius: 50%; border: none;
+        /* Подпись под кнопкой */
+        .bottom-label {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            margin-top: 20px;
+            z-index: 5;
+            letter-spacing: 2px;
+        }
+
+        /* * ======================================================================================
+         * 4. ГЛАВНАЯ КНОПКА (CORE BUTTON)
+         * ======================================================================================
+         */
+        .click-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        #main-btn {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            border: 8px solid rgba(255, 255, 255, 0.15);
             background: linear-gradient(135deg, var(--btn-grad-start), var(--btn-grad-end));
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5); cursor: pointer;
-            transition: transform 0.05s; outline: none; margin: 0 auto;
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.5),
+                inset 0 10px 20px rgba(255,255,255,0.3),
+                inset 0 -10px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.05s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
-        @media (max-width: 768px) {
-            #click-button { width: 180px; height: 180px; }
-            #score-container { font-size: 4rem !important; }
-        }
-        #click-button:active { transform: scale(0.92); }
 
-        .auth-container { background: var(--container-bg); padding: 35px; border-radius: 30px; text-align: center; width: 300px; z-index: 10; }
-        input { width: 90%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; background: var(--input-bg); color: var(--input-text); font-family: 'Montserrat'; }
-        .menu-btn { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; border: none; border-radius: 12px; background: #444; color: white; font-weight: 800; font-family: 'Montserrat'; text-transform: uppercase; }
+        /* Эффект нажатия */
+        #main-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        /* Радужный режим для кнопки */
+        .rainbow-mode-btn {
+            background: linear-gradient(
+                124deg, 
+                #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3
+            ) !important;
+            background-size: 1800% 1800% !important;
+            animation: rainbowBgAnim 2s ease infinite !important; /* Быстрое переливание */
+            border-color: rgba(255,255,255,0.5) !important;
+            box-shadow: 0 0 50px rgba(255, 0, 200, 0.5) !important;
+        }
+
+        @keyframes rainbowBgAnim { 
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+
+        /* Всплывающий текст (+1) */
+        .click-float {
+            position: absolute;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            pointer-events: none;
+            z-index: 100;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            animation: floatUpFade 0.7s ease-out forwards;
+        }
+
+        @keyframes floatUpFade {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+        }
+
+        /* * ======================================================================================
+         * 5. ИНТЕРФЕЙС МЕНЮ И НАВИГАЦИИ
+         * ======================================================================================
+         */
         
-        #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 15px; padding: 15px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.4s; }
-        #toast.show { visibility: visible; opacity: 1; }
+        /* Док с иконками */
+        .dock-panel {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 50;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
 
-        .rarity-0 { border-color: var(--rarity-0) !important; color: var(--rarity-0); }
-        .rarity-1 { border-color: var(--rarity-1) !important; color: var(--rarity-1); }
-        .rarity-2 { border-color: var(--rarity-2) !important; color: var(--rarity-2); }
-        .rarity-3 { border-color: var(--rarity-3) !important; color: var(--rarity-3); }
-        .rarity-4 { border-color: var(--rarity-4) !important; color: var(--rarity-4); }
+        .dock-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--panel-bg);
+            border: var(--panel-border);
+            color: var(--text-main);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .dock-btn:hover {
+            transform: scale(1.15) translateX(-5px);
+            background: var(--accent-color);
+            color: #fff;
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        /* Мобильная адаптация навигации */
+        @media (max-width: 768px) {
+            .dock-panel {
+                right: 50%;
+                top: auto;
+                bottom: 20px;
+                transform: translateX(50%);
+                flex-direction: row;
+                width: 90%;
+                justify-content: space-around;
+                padding: 10px;
+            }
+            .dock-btn:hover { transform: scale(1.15) translateY(-5px); }
+            
+            .ultimate-title { font-size: 2.2rem; }
+            #score-display { font-size: 5rem; }
+            #main-btn { width: 220px; height: 220px; }
+        }
+
+        /* * ======================================================================================
+         * 6. МОДАЛЬНЫЕ ОКНА (MODALS)
+         * ======================================================================================
+         */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: var(--glass-blur);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            width: 90%;
+            max-width: 450px;
+            max-height: 85vh;
+            border-radius: 35px;
+            padding: 30px;
+            border: var(--panel-border);
+            box-shadow: var(--panel-shadow);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+
+        /* Заголовок модалки */
+        .m-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+
+        .m-title {
+            font-family: 'Shojumaru', cursive;
+            color: var(--accent-color);
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+        }
+
+        /* Крестик закрытия */
+        .close-icon {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-secondary);
+            transition: 0.3s;
+            line-height: 0;
+        }
+        .close-icon:hover { color: var(--accent-color); transform: rotate(90deg); }
+
+        /* UI Кнопки внутри модалок */
+        .ui-btn {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            font-family: 'Montserrat';
+            width: 100%;
+            margin-top: 10px;
+        }
+        .ui-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .ui-btn:active { transform: scale(0.98); }
+        
+        .ui-btn.primary { background: var(--accent-color); }
+        .ui-btn.danger { background: #c0392b; }
+        .ui-btn.info { background: #3498db; }
+
+        /* * ======================================================================================
+         * 7. ЭЛЕМЕНТЫ МАГАЗИНА, ИНВЕНТАРЯ И НАСТРОЕК
+         * ======================================================================================
+         */
+        
+        /* Магазин */
+        .shop-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .shop-row:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+        
+        .item-icon { font-size: 2rem; margin-right: 15px; }
+        .item-details { flex-grow: 1; text-align: left; }
+        .item-name { font-weight: 800; font-size: 0.9rem; color: var(--text-main); }
+        .item-desc { font-size: 0.7rem; color: var(--text-secondary); }
+        
+        .price-badge { 
+            background: #222; 
+            padding: 5px 10px; 
+            border-radius: 8px; 
+            font-size: 0.8rem; 
+            color: #f1c40f; 
+            font-weight: bold;
+        }
+
+        /* Инвентарь */
+        .inv-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .inv-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 3px solid #555;
+            position: relative;
+        }
+        .inv-count {
+            position: absolute; top: 5px; right: 5px;
+            background: var(--accent-color); color: white;
+            font-size: 0.7rem; padding: 2px 6px; border-radius: 8px; font-weight: 900;
+        }
+
+        /* Настройки цвета */
+        .colors-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 15px 0; }
+        .c-dot {
+            width: 100%; aspect-ratio: 1; border-radius: 50%;
+            cursor: pointer; border: 3px solid transparent; transition: 0.3s;
+            position: relative;
+        }
+        .c-dot.active { transform: scale(1.2); border-color: white; box-shadow: 0 0 15px currentColor; }
+        .c-dot.locked { filter: grayscale(1); opacity: 0.5; }
+        .c-dot.locked::after { content: '🔒'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 12px; }
+
+        /* Переключатель языков */
+        .lang-flags { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+        .flag-btn {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; opacity: 0.5; transition: 0.3s;
+        }
+        .flag-btn.active { opacity: 1; transform: scale(1.1); }
+        .flag-img { font-size: 2rem; }
+        .flag-label { font-size: 0.7rem; font-weight: 900; margin-top: 5px; }
+
+        /* Авторизация */
+        .auth-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column;
+        }
+        .auth-box {
+            background: var(--panel-bg); padding: 40px; border-radius: 40px;
+            text-align: center; border: 1px solid var(--modal-border);
+            width: 90%; max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .nice-input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            border-radius: 12px; border: none;
+            background: var(--input-bg); color: var(--input-text);
+            font-size: 1rem; text-align: center; font-weight: 600;
+        }
+
+        /* Колесо Фортуны */
+        .fortune-container {
+            width: 100%; height: 100px; background: #000;
+            border: 4px solid var(--accent-color); border-radius: 15px;
+            overflow: hidden; position: relative; margin-bottom: 20px;
+        }
+        .fortune-tape {
+            display: flex; height: 100%; position: absolute; left: 0;
+            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+        .fortune-cell {
+            min-width: 80px; height: 100%; display: flex;
+            align-items: center; justify-content: center; font-size: 2rem;
+            border-right: 1px solid #333; color: white; background: #111;
+        }
+        .fortune-arrow {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 100%; background: red; z-index: 10;
+            box-shadow: 0 0 10px red;
+        }
+
+        /* Анимация открытия яйца */
+        #egg-anim-layer {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5000;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        .egg-shake { font-size: 10rem; animation: shakeHard 0.5s infinite; }
+        @keyframes shakeHard { 0%{transform:rotate(0)} 25%{transform:rotate(10deg)} 75%{transform:rotate(-10deg)} 100%{transform:rotate(0)} }
+        
+        .pet-reveal { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 8rem; margin-bottom: 20px; }
+        @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
+
+        /* Toast */
+        #toast {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #222; color: #fff; padding: 12px 30px; border-radius: 50px;
+            font-weight: 700; border: 1px solid var(--accent-color);
+            z-index: 9999; opacity: 0; transition: 0.4s;
+        }
+        #toast.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+
     </style>
 </head>
 <body>
 
-    <div id="particles-container"></div>
-    <div id="toast"></div>
+    <canvas id="particles-canvas"></canvas>
 
-    <div id="egg-opening-overlay">
-        <div id="opening-egg-icon" class="egg-anim">🥚</div>
-        <h2 id="opening-text" style="color: white; margin-top: 25px;">ОТКРЫТИЕ...</h2>
-        <div id="pet-reveal" style="display:none; text-align:center;">
-            <div id="revealed-pet-emoji" class="reveal-anim"></div>
-            <h1 id="revealed-pet-name"></h1>
-            <h3 id="revealed-pet-rarity"></h3>
-            <button class="menu-btn" style="width:150px; background:var(--accent-color); color:#000;" onclick="closeEggAnimation()">OK</button>
+    <div id="toast">Notification</div>
+
+    <div id="egg-anim-layer">
+        <div id="egg-stage-1" style="text-align:center;">
+            <div class="egg-shake">💩</div>
+            <h1 style="color:white; font-family:'Shojumaru'; letter-spacing:3px; margin-top:20px;">CRACKING...</h1>
+        </div>
+        <div id="egg-stage-2" style="display:none; text-align:center;">
+            <div id="res-emoji" class="pet-reveal"></div>
+            <h2 id="res-name" style="color:white; text-transform:uppercase; font-size:2rem; margin:0;">NAME</h2>
+            <h3 id="res-rarity" style="margin-top:5px; font-weight:900;">RARITY</h3>
+            <button class="ui-btn primary" style="width:200px; margin-top:30px;" onclick="closeEgg()">OK</button>
         </div>
     </div>
-    
-    <div id="nav-ui" class="nav-panel" style="display: none;">
-        <div class="nav-item" onclick="toggleModal('settings-panel')"><span class="nav-icon">⚙️</span><span class="key-hint">[O]</span></div>
-        <div class="nav-item" onclick="toggleModal('shop-modal')"><span class="nav-icon">🛒</span><span class="key-hint">[S]</span></div>
-        <div class="nav-item" onclick="toggleModal('fortune-modal')"><span class="nav-icon">🎡</span><span class="key-hint">[F]</span></div>
-        <div class="nav-item" onclick="toggleModal('inventory-modal')"><span class="nav-icon">🎒</span><span class="key-hint">[I]</span></div>
-    </div>
 
-    <div id="auth-ui" class="auth-container">
-        <div style="font-weight:900; color:var(--accent-color); font-size:1.8rem; margin-bottom:10px;">IDI NAHUI CLICKER</div>
-        <div class="lang-container">
-            <div class="lang-item" onclick="setLang('ru')">🇷🇺<span class="lang-label">RU</span></div>
-            <div class="lang-item" onclick="setLang('en')">🇺🇸<span class="lang-label">EN</span></div>
+    <div id="auth-wrapper" class="auth-wrapper">
+        <div class="auth-box">
+            <h1 class="ultimate-title">IDI NAHUI</h1>
+            <p class="subtitle-text" id="auth-sub">я пошел нахуй</p>
+            
+            <div class="lang-flags">
+                <div class="flag-btn" id="fl-ru-auth" onclick="changeLang('ru')">
+                    <span class="flag-img">🇷🇺</span>
+                    <span class="flag-label">RU</span>
+                </div>
+                <div class="flag-btn" id="fl-en-auth" onclick="changeLang('en')">
+                    <span class="flag-img">🇺🇸</span>
+                    <span class="flag-label">EN</span>
+                </div>
+            </div>
+
+            <input type="text" id="inp-login" class="nice-input" placeholder="Login">
+            <input type="password" id="inp-pass" class="nice-input" placeholder="Password">
+            
+            <button class="ui-btn primary" id="btn-auth-main" onclick="processAuth()">ВХОД</button>
+            <p style="margin-top:15px; font-size:0.8rem; cursor:pointer; text-decoration:underline; opacity:0.7;" id="auth-toggle" onclick="toggleAuth()">Нет аккаунта? Регистрация</p>
         </div>
-        <input type="text" id="username" placeholder="Логин">
-        <input type="password" id="password" placeholder="Пароль">
-        <button class="menu-btn" style="background: #ff4e50; color: white;" id="main-auth-btn" onclick="handleAuth()">Войти</button>
-        <span style="display:block; margin-top:20px; cursor:pointer; font-size:0.8rem; opacity:0.7;" onclick="toggleMode()" id="toggle-mode">Регистрация</span>
     </div>
 
-    <div id="shop-modal" class="modal">
-        <h2 class="modal-h" id="h-shop">Магазин</h2>
-        <div class="shop-item"><span id="egg1-name">💩 Яйцо 1</span> <b>200</b> <button class="buy-btn" onclick="startEggOpening(1)">BUY</button></div>
-        <div class="shop-item"><span id="egg2-name">🖕 Яйцо 2</span> <b>500</b> <button class="buy-btn" onclick="startEggOpening(2)">BUY</button></div>
-        <div class="shop-item"><span id="egg3-name">🍑 Яйцо 3</span> <b>1000</b> <button class="buy-btn" onclick="startEggOpening(3)">BUY</button></div>
-        <button class="menu-btn" onclick="closeAll()" id="btn-close-shop">Закрыть</button>
-    </div>
-
-    <div id="inventory-modal" class="modal">
-        <h2 class="modal-h" id="h-inv">Инвентарь</h2>
-        <div class="inventory-grid" id="inv-grid"></div>
-        <button class="menu-btn" onclick="closeAll()" id="btn-close-inv">Закрыть</button>
-    </div>
-
-    <div id="fortune-modal" class="modal">
-        <h2 class="modal-h" id="h-fortune">Фортуна</h2>
-        <div class="fortune-container">
-            <div class="fortune-pointer"></div>
-            <div id="fortune-tape" class="fortune-tape"></div>
-        </div>
-        <button class="menu-btn" style="background: var(--accent-color); color: #000;" onclick="spinFortune()" id="btn-spin">КРУТИТЬ (50)</button>
-        <button class="menu-btn" onclick="closeAll()" id="btn-close-fortune">Закрыть</button>
-    </div>
-
-    <div id="settings-panel" class="modal">
-        <h2 class="modal-h" id="h-set">Настройки</h2>
-        <div style="margin-bottom: 10px; background:rgba(0,0,0,0.1); padding:10px; border-radius:10px;">
-            <span id="set-acc-label">Аккаунт:</span> <b id="current-user-name">---</b>
-        </div>
-        <button class="menu-btn" onclick="toggleTheme()" id="btn-theme">Тема</button>
+    <div id="game-layer" style="display:none; text-align:center; width:100%; position:relative; z-index:10;">
         
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button class="menu-btn" style="flex:1; background:#00a8ff" onclick="setEffect('snow')">❄️ Снег</button>
-            <button class="menu-btn" style="flex:1; background:#ff4e50" onclick="setEffect('hearts')">❤️ Сердца</button>
-        </div>
-        <button class="menu-btn" style="background:#555; font-size:0.7rem;" onclick="setEffect('none')">Убрать эффекты</button>
+        <h1 class="ultimate-title">IDI NAHUI</h1>
+        <p class="subtitle-text" id="game-sub">я пошел нахуй</p>
 
-        <div class="color-options">
-            <div class="color-dot" id="dot-red" style="background: linear-gradient(#ff4e50, #960000);" onclick="changeBtnColor('#ff4e50', '#960000', 'red')"></div>
-            <div class="color-dot" id="dot-blue" style="background: linear-gradient(#4facfe, #003366);" onclick="changeBtnColor('#4facfe', '#003366', 'blue')"></div>
-            <div class="color-dot" id="dot-green" style="background: linear-gradient(#42e695, #1a5e3a);" onclick="changeBtnColor('#42e695', '#1a5e3a', 'green')"></div>
-            <div class="color-dot" id="dot-gold" style="background: linear-gradient(#f9d423, #b59500);" onclick="changeBtnColor('#f9d423', '#b59500', 'gold')"></div>
+        <div class="score-big" id="score-val">0</div>
+
+        <div class="click-container" style="margin: 20px 0;">
+            <button id="main-btn"></button>
         </div>
 
-        <div class="lang-container">
-            <div class="lang-item" onclick="setLang('ru')">🇷🇺<span class="lang-label">RU</span></div>
-            <div class="lang-item" onclick="setLang('en')">🇺🇸<span class="lang-label">EN</span></div>
+        <div class="bottom-label" id="unit-val">раз</div>
+
+        <div class="dock-panel">
+            <div class="dock-btn" onclick="openModal('shop')">🛒</div>
+            <div class="dock-btn" onclick="openModal('inventory')">🎒</div>
+            <div class="dock-btn" onclick="openModal('fortune')">🎡</div>
+            <div class="dock-btn" onclick="openModal('settings')">⚙️</div>
+            <div class="dock-btn" onclick="openModal('info')">ℹ️</div>
         </div>
-        <button class="menu-btn" style="background: #ff4e50;" onclick="location.reload()">Выйти</button>
-        <button class="menu-btn" onclick="closeAll()">Закрыть</button>
+
     </div>
 
-    <div id="game-ui">
-        <h1 style="font-weight:900; color:var(--accent-color); margin:0;">IDI NAHUI</h1>
-        <div id="game-sub" style="opacity:0.7; font-weight:700;">я пошел/пошла нахуй</div>
-        <div id="score-container" style="font-size: 5rem; font-weight: 900; margin: 10px 0;">0</div>
-        <div id="game-unit" style="font-weight: 900; color: var(--accent-color); font-size: 1.5rem; margin-bottom: 20px;">раз</div>
-        <button id="click-button"></button>
+    <div id="modal-shop" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-icon" onclick="closeModals()">×</span>
+            <div class="m-header"><h2 class="m-title" id="t-shop">SHOP</h2></div>
+            
+            <div class="shop-item">
+                <div style="display:flex;align-items:center;">
+                    <span class="item-icon">💩</span>
+                    <div class="item-details">
+                        <div class="item-name" id="n-egg">ЯЙЦО ГОВНА</div>
+                        <div class="item-desc">Random Pet</div>
+                    </div>
+                </div>
+                <button class="ui-btn primary" style="width:auto;" onclick="buyEgg()">200 💰</button>
+            </div>
+
+            <div class="shop-item">
+                <div style="display:flex;align-items:center;">
+                    <span class="item-icon">🌈</span>
+                    <div class="item-details">
+                        <div class="item-name" id="n-hearts">РАДУЖНЫЕ СЕРДЦА</div>
+                        <div class="item-desc">Effect</div>
+                    </div>
+                </div>
+                <button class="ui-btn info" id="buy-hearts-btn" style="width:auto;" onclick="buyItem('hearts', 5000)">5000 💰</button>
+            </div>
+
+            <div class="shop-item">
+                <div style="display:flex;align-items:center;">
+                    <span class="item-icon">💿</span>
+                    <div class="item-details">
+                        <div class="item-name" id="n-rbtn">РАДУЖНАЯ КНОПКА</div>
+                        <div class="item-desc">Skin</div>
+                    </div>
+                </div>
+                <button class="ui-btn info" id="buy-rbtn-btn" style="width:auto;" onclick="buyItem('rbtn', 10000)">10000 💰</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-inventory" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-icon" onclick="closeModals()">×</span>
+            <div class="m-header"><h2 class="m-title" id="t-inv">BACKPACK</h2></div>
+            <div id="inv-list" class="inv-grid"></div>
+        </div>
+    </div>
+
+    <div id="modal-fortune" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-icon" onclick="closeModals()">×</span>
+            <div class="m-header"><h2 class="m-title" id="t-fortune">FORTUNE</h2></div>
+            
+            <div class="fortune-container">
+                <div class="fortune-arrow"></div>
+                <div class="fortune-tape" id="fortune-tape"></div>
+            </div>
+            
+            <button class="ui-btn primary" id="btn-spin" onclick="spin()">SPIN (50)</button>
+        </div>
+    </div>
+
+    <div id="modal-info" class="modal-overlay">
+        <div class="modal-content" style="text-align:center;">
+            <span class="close-icon" onclick="closeModals()">×</span>
+            <div class="m-header"><h2 class="m-title">INFO</h2></div>
+            
+            <h1 style="font-size:3rem; margin:10px 0; color:var(--accent-color);">BETA 8.0</h1>
+            <p style="opacity:0.7; margin-bottom:30px;">beta test by XCX diva</p>
+            <p style="opacity:0.7; margin-bottom:30px;">Фортуна не работает!!! Эффекты тоже!!!</p>
+
+            <a href="https://t.me/Hfdhkdgk" target="_blank" style="text-decoration:none;">
+                <button class="ui-btn info" style="background:#0088cc;">TELEGRAM</button>
+            </a>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-icon" onclick="closeModals()">×</span>
+            <div class="m-header"><h2 class="m-title" id="t-set">SETTINGS</h2></div>
+
+            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:15px;">
+                <span id="lbl-acc" style="opacity:0.6; font-size:0.8rem;">Account:</span>
+                <strong id="set-user" style="color:var(--accent-color); font-size:1.1rem; display:block;">User</strong>
+            </div>
+
+            <button class="ui-btn" onclick="toggleTheme()" id="btn-theme">CHANGE THEME</button>
+
+            <p style="font-weight:900; margin-top:20px;" id="lbl-eff">EFFECTS:</p>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:5px;">
+                <button class="ui-btn" style="margin:0; padding:10px; background:#444;" onclick="setEffect('mats')">🤬</button>
+                <button class="ui-btn" style="margin:0; padding:10px; background:#00a8ff;" onclick="setEffect('snow')">❄️</button>
+                <button class="ui-btn" style="margin:0; padding:10px; background:#ff4e50;" onclick="setEffect('hearts')">❤️</button>
+                <button class="ui-btn" style="margin:0; padding:10px; background:#ff9a9e;" onclick="setEffect('pink')">🌸</button>
+                <button class="ui-btn" style="margin:0; padding:10px; background:#de2910;" onclick="setEffect('china')">🏮</button>
+                <button class="ui-btn" style="margin:0; padding:10px; background:#654321;" onclick="setEffect('shit')">💩</button>
+                <button class="ui-btn locked" id="eff-rain-btn" style="margin:0; padding:10px; background:linear-gradient(45deg, red, blue);" onclick="buyItem('hearts', 5000)">🌈</button>
+                <button class="ui-btn" style="margin:0; padding:10px; background:#333; grid-column:span 2;" onclick="setEffect('none')">OFF</button>
+            </div>
+
+            <p style="font-weight:900; margin-top:20px;" id="lbl-col">COLOR:</p>
+            <div class="colors-container">
+                <div class="c-dot" id="c1" style="background:linear-gradient(#ff4e50, #960000)" onclick="setColor(1, '#ff4e50', '#960000')"></div>
+                <div class="c-dot" id="c2" style="background:linear-gradient(#4facfe, #00f2fe)" onclick="setColor(2, '#4facfe', '#00f2fe')"></div>
+                <div class="c-dot" id="c3" style="background:linear-gradient(#43e97b, #38f9d7)" onclick="setColor(3, '#43e97b', '#38f9d7')"></div>
+                <div class="c-dot" id="c4" style="background:linear-gradient(#f9d423, #ff4e50)" onclick="setColor(4, '#f9d423', '#ff4e50')"></div>
+                <div class="c-dot" id="c5" style="background:linear-gradient(#a18cd1, #fbc2eb)" onclick="setColor(5, '#a18cd1', '#fbc2eb')"></div>
+                <div class="c-dot" id="c6" style="background:linear-gradient(#8B4513, #A0522D)" onclick="setColor(6, '#8B4513', '#A0522D')"></div> <div class="c-dot" id="c7" style="background:linear-gradient(#ff9a9e, #fecfef)" onclick="setColor(7, '#ff9a9e', '#fecfef')"></div>
+                <div class="c-dot" id="c8" style="background:linear-gradient(#30cfd0, #330867)" onclick="setColor(8, '#30cfd0', '#330867')"></div>
+                <div class="c-dot" id="c9" style="background:linear-gradient(#6a11cb, #2575fc)" onclick="setColor(9, '#6a11cb', '#2575fc')"></div>
+                <div class="c-dot locked" id="c10" style="background:linear-gradient(45deg, red, yellow, green, blue, violet)" onclick="buyItem('rbtn', 10000)"></div>
+            </div>
+
+            <div class="lang-flags">
+                <div class="flag-btn" id="fl-ru-set" onclick="changeLang('ru')"><span class="flag-img">🇷🇺</span><span>RU</span></div>
+                <div class="flag-btn" id="fl-en-set" onclick="changeLang('en')"><span class="flag-img">🇺🇸</span><span>EN</span></div>
+            </div>
+
+            <button class="ui-btn danger" style="margin-top:20px;" onclick="logout()" id="btn-logout">LOG OUT</button>
+        </div>
     </div>
 
     <script>
-        let isLoginMode = true; let currentUser = null;
-        let currentLang = localStorage.getItem('lang') || 'ru';
-        let users = JSON.parse(localStorage.getItem('clicker_users')) || {};
-        let effectInterval = null;
-
-        const PETS_DATA = {
-            egg1: [{n: "Муха", en: "Fly", e: "🪰", r: 0}, {n: "Крыса", en: "Rat", e: "🐀", r: 1}, {n: "Скунс", en: "Skunk", e: "🦨", r: 2}, {n: "Зомби", en: "Zombie", e: "🧟", r: 3}, {n: "Король Навоза", en: "Dung King", e: "👑", r: 4}],
-            egg2: [{n: "Смайлик", en: "Emoji", e: "😀", r: 0}, {n: "Кактус", en: "Cactus", e: "🌵", r: 1}, {n: "Боксер", en: "Boxer", e: "🥊", r: 2}, {n: "Тролль", en: "Troll", e: "👺", r: 3}, {n: "Мастер", en: "Master", e: "🧙", r: 4}],
-            egg3: [{n: "Мыло", en: "Soap", e: "🧼", r: 0}, {n: "Утка", en: "Duck", e: "🦆", r: 1}, {n: "Сантехник", en: "Plumber", e: "👨‍🔧", r: 2}, {n: "Унитаз", en: "Toilet", e: "🚽", r: 3}, {n: "Бог Поп", en: "Butt God", e: "🍑", r: 4}]
+        /**
+         * GLOBAL CONFIG & DATA
+         */
+        const DB_NAME = 'idi_nahui_ultimate_db';
+        let appState = {
+            user: null,
+            data: {}, // { pass, score, inv: {}, unlocks: [], activeColor: {}, activeEffect: '' }
+            lang: 'ru',
+            loginMode: true
         };
 
-        const rarityNames = {
-            ru: ["Обычный", "Необычный", "Редкий", "Ультра-Редкий", "Легендарный"],
-            en: ["Common", "Uncommon", "Rare", "Ultra-Rare", "Legendary"]
-        };
-
-        const texts = {
-            ru: { 
-                login: "Войти", reg: "Создать аккаунт", noAcc: "Регистрация", hasAcc: "Вход", fill: "Заполни поля!", 
-                shop: "Магазин", inv: "Инвентарь", sub: "я пошел/пошла нахуй", unit: "раз", 
-                set: "Настройки", theme: "Сменить тему", spin: "КРУТИТЬ (50)", opening: "ОТКРЫТИЕ...", low: "Мало очков!",
-                accLabel: "Аккаунт:", egg1: "💩 Яйцо 1", egg2: "🖕 Яйцо 2", egg3: "🍑 Яйцо 3"
+        const LOCALIZATION = {
+            ru: {
+                subtitle: "я пошел/пошла нахуй",
+                unit: "РАЗ",
+                login_btn: "ВОЙТИ",
+                reg_btn: "РЕГИСТРАЦИЯ",
+                toggle_reg: "Нет аккаунта? Регистрация",
+                toggle_login: "Уже есть аккаунт? Вход",
+                shop: "МАГАЗИН",
+                inv: "РЮКЗАК",
+                fortune: "ФОРТУНА",
+                set: "НАСТРОЙКИ",
+                egg_name: "ЯЙЦО ГОВНА",
+                r_hearts: "РАДУЖНЫЕ СЕРДЦА",
+                r_btn: "РАДУЖНАЯ КНОПКА",
+                theme: "СМЕНИТЬ ТЕМУ",
+                lbl_acc: "Аккаунт:",
+                lbl_eff: "ЭФФЕКТЫ:",
+                lbl_col: "ЦВЕТ КНОПКИ:",
+                logout: "ВЫЙТИ",
+                spin: "КРУТИТЬ (50)",
+                open_txt: "ОТКРЫВАЕМ...",
+                bought: "КУПЛЕНО!",
+                no_money: "МАЛО ДЕНЕГ, БОМЖ!",
+                fill: "ЗАПОЛНИ ПОЛЯ!",
+                exists: "ЗАНЯТО!",
+                err: "ОШИБКА!",
+                rarity: { c: "ОБЫЧНЫЙ", r: "РЕДКИЙ", u: "УЛЬТРА", l: "ЛЕГЕНДАРНЫЙ" }
             },
-            en: { 
-                login: "Login", reg: "Sign Up", noAcc: "Register", hasAcc: "Login", fill: "Fill fields!", 
-                shop: "Shop", inv: "Backpack", sub: "i went to f**k off", unit: "times", 
-                set: "Settings", theme: "Theme", spin: "SPIN (50)", opening: "OPENING...", low: "No points!",
-                accLabel: "Account:", egg1: "💩 Egg 1", egg2: "🖕 Egg 2", egg3: "🍑 Egg 3"
+            en: {
+                subtitle: "i went to f**k off",
+                unit: "TIMES",
+                login_btn: "LOGIN",
+                reg_btn: "REGISTER",
+                toggle_reg: "No account? Register",
+                toggle_login: "Have account? Login",
+                shop: "SHOP",
+                inv: "BACKPACK",
+                fortune: "FORTUNE",
+                set: "SETTINGS",
+                egg_name: "SHIT EGG",
+                r_hearts: "RAINBOW HEARTS",
+                r_btn: "RAINBOW BUTTON",
+                theme: "CHANGE THEME",
+                lbl_acc: "Account:",
+                lbl_eff: "EFFECTS:",
+                lbl_col: "BUTTON COLOR:",
+                logout: "LOG OUT",
+                spin: "SPIN (50)",
+                open_txt: "OPENING...",
+                bought: "BOUGHT!",
+                no_money: "NOT ENOUGH MONEY!",
+                fill: "FILL FIELDS!",
+                exists: "EXISTS!",
+                err: "ERROR!",
+                rarity: { c: "COMMON", r: "RARE", u: "ULTRA", l: "LEGENDARY" }
             }
         };
 
-        window.onload = function() {
-            setLang(currentLang);
-            if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
-            let savedColor = JSON.parse(localStorage.getItem('btnColor')) || {start: '#ff4e50', end: '#960000', id: 'red'};
-            changeBtnColor(savedColor.start, savedColor.end, savedColor.id);
+        const ITEMS = [
+            { id: 0, ru: "Поцелуй алкаша", en: "Drunkard's Kiss", r: 'c', icon: '💋', col: 'var(--rarity-common)' },
+            { id: 1, ru: "Обосранная коробка", en: "Shitty Box", r: 'r', icon: '📦', col: 'var(--rarity-rare)' },
+            { id: 2, ru: "Тройная пизда", en: "Triple Pussy", r: 'u', icon: '👄', col: 'var(--rarity-ultra)' },
+            { id: 3, ru: "Говно", en: "Piece of Shit", r: 'l', icon: '💩', col: 'var(--rarity-legend)' }
+        ];
+
+        const MATS = {
+            ru: ["ХУЙ", "ПИЗДА", "БЛЯТЬ", "ЕБЛАН", "СУКА", "МУДАК", "ИДИ НАХУЙ", "ЗАЛУПА", "ГОНДОН"],
+            en: ["FUCK", "SHIT", "BITCH", "CUNT", "DICK", "ASSHOLE", "BASTARD", "STFU"]
+        };
+
+        /* =========================================
+           CORE FUNCTIONS
+           ========================================= */
+        
+        window.onload = () => {
+            // Load DB
+            const db = localStorage.getItem(DB_NAME);
+            if(db) appState.data = JSON.parse(db);
+
+            // Load Lang
+            const lg = localStorage.getItem('idi_lang');
+            if(lg) appState.lang = lg;
+            applyLang();
+
+            // Load Theme
+            if(localStorage.getItem('idi_theme') === 'light') document.body.classList.add('light-mode');
+
+            // Init Fortune
             initFortune();
+
+            // Start Particle Loop
+            initParticles();
         };
 
-        function setEffect(type) {
-            clearInterval(effectInterval);
-            document.getElementById('particles-container').innerHTML = '';
-            if (type === 'none') return;
-            effectInterval = setInterval(() => {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.innerText = type === 'snow' ? '❄️' : '❤️';
-                p.style.left = Math.random() * 100 + 'vw';
-                p.style.fontSize = (Math.random() * 10 + 10) + 'px';
-                p.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                p.style.opacity = Math.random();
-                document.getElementById('particles-container').appendChild(p);
-                setTimeout(() => p.remove(), 5000);
-            }, 200);
+        function save() {
+            localStorage.setItem(DB_NAME, JSON.stringify(appState.data));
         }
 
-        function setLang(l) {
-            currentLang = l; localStorage.setItem('lang', l);
-            const t = texts[l];
-            document.getElementById('main-auth-btn').innerText = isLoginMode ? t.login : t.reg;
-            document.getElementById('toggle-mode').innerText = isLoginMode ? t.noAcc : t.hasAcc;
-            document.getElementById('game-sub').innerText = t.sub;
-            document.getElementById('game-unit').innerText = t.unit;
-            document.getElementById('h-inv').innerText = t.inv;
-            document.getElementById('h-shop').innerText = t.shop;
-            document.getElementById('h-set').innerText = t.set;
-            document.getElementById('btn-theme').innerText = t.theme;
-            document.getElementById('set-acc-label').innerText = t.accLabel;
-            document.getElementById('btn-spin').innerText = t.spin;
-            document.getElementById('opening-text').innerText = t.opening;
-            document.getElementById('egg1-name').innerText = t.egg1;
-            document.getElementById('egg2-name').innerText = t.egg2;
-            document.getElementById('egg3-name').innerText = t.egg3;
+        /* --- AUTH SYSTEM --- */
+        function toggleAuth() {
+            appState.loginMode = !appState.loginMode;
+            applyLang();
         }
 
-        function handleAuth() {
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
-            if(!u || !p) return showToast(texts[currentLang].fill);
-            if (isLoginMode) {
-                if (users[u] && users[u].password === p) { 
-                    currentUser = u; 
-                    document.getElementById('auth-ui').style.display='none'; 
-                    document.getElementById('game-ui').style.display='block'; 
-                    document.getElementById('nav-ui').style.display='flex'; 
-                    document.getElementById('current-user-name').innerText=u; 
-                    document.getElementById('score-container').innerText=users[u].score;
-                    updateInvGrid();
-                } else showToast("Error!");
+        function processAuth() {
+            const l = document.getElementById('inp-login').value.trim();
+            const p = document.getElementById('inp-pass').value.trim();
+            if(!l || !p) return showToast(LOCALIZATION[appState.lang].fill);
+
+            if(appState.loginMode) {
+                // Login
+                if(appState.data[l] && appState.data[l].pass === p) {
+                    login(l);
+                } else {
+                    showToast(LOCALIZATION[appState.lang].err);
+                }
             } else {
-                if (users[u]) showToast("Exists!");
-                else { users[u] = {password:p, score:0, pets:[]}; save(); toggleMode(); }
+                // Register
+                if(appState.data[l]) return showToast(LOCALIZATION[appState.lang].exists);
+                appState.data[l] = {
+                    pass: p,
+                    score: 0,
+                    inventory: {},
+                    unlocks: [], // ['rbtn', 'rhearts']
+                    activeColor: { id: 1, s: '#ff4e50', e: '#960000' },
+                    activeEffect: 'none'
+                };
+                save();
+                showToast("OK! Login now.");
+                toggleAuth();
             }
         }
 
-        function startEggOpening(type) {
-            let cost = [0, 200, 500, 1000][type];
-            if (users[currentUser].score < cost) return showToast(texts[currentLang].low);
-            users[currentUser].score -= cost;
-            document.getElementById('score-container').innerText = users[currentUser].score;
-            closeAll();
-            const overlay = document.getElementById('egg-opening-overlay');
-            overlay.style.display = 'flex';
-            document.getElementById('opening-egg-icon').style.display = 'block';
-            document.getElementById('opening-text').style.display = 'block';
-            document.getElementById('pet-reveal').style.display = 'none';
+        function login(user) {
+            appState.user = user;
+            document.getElementById('auth-wrapper').style.display = 'none';
+            document.getElementById('game-layer').style.display = 'block';
+            document.getElementById('set-user').innerText = user;
+            
+            // Restore state
+            updateScoreUI();
+            const d = appState.data[user];
+            
+            // Apply color
+            setColor(d.activeColor.id, d.activeColor.s, d.activeColor.e, true); // true = no save
+            
+            // Apply effect
+            startParticles(d.activeEffect);
+            
+            // Update UI locks
+            if(d.unlocks.includes('rbtn')) {
+                document.getElementById('c10').classList.remove('locked');
+                document.getElementById('buy-rbtn-btn').innerText = LOCALIZATION[appState.lang].bought;
+            }
+            if(d.unlocks.includes('rhearts')) {
+                document.getElementById('eff-rain-btn').classList.remove('locked');
+                document.getElementById('buy-hearts-btn').innerText = LOCALIZATION[appState.lang].bought;
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        /* --- GAMEPLAY --- */
+        document.getElementById('main-btn').addEventListener('pointerdown', (e) => {
+            if(!appState.user) return;
+            
+            const u = appState.data[appState.user];
+            u.score++;
+            updateScoreUI();
+            save();
+
+            // 3D Visual Press
+            e.target.style.transform = "scale(0.95)";
+            
+            // Floater
+            const f = document.createElement('div');
+            f.innerText = "+1";
+            f.className = "click-float";
+            f.style.left = e.clientX + 'px';
+            f.style.top = e.clientY + 'px';
+            document.body.appendChild(f);
+            setTimeout(() => f.remove(), 700);
+
+            // Particle Burst
+            spawnBurst(e.clientX, e.clientY);
+        });
+
+        document.getElementById('main-btn').addEventListener('pointerup', (e) => {
+            e.target.style.transform = "scale(1)";
+        });
+
+        function updateScoreUI() {
+            document.getElementById('score-val').innerText = appState.data[appState.user].score;
+        }
+
+        /* --- SHOP & ITEMS --- */
+        function buyEgg() {
+            const u = appState.data[appState.user];
+            if(u.score < 200) return showToast(LOCALIZATION[appState.lang].no_money);
+            
+            u.score -= 200;
+            save();
+            updateScoreUI();
+            closeModals();
+
+            // Animation
+            const l = document.getElementById('egg-anim-layer');
+            l.style.display = 'flex';
+            document.getElementById('egg-stage-1').style.display = 'block';
+            document.getElementById('egg-stage-2').style.display = 'none';
 
             setTimeout(() => {
-                const pool = PETS_DATA['egg'+type];
-                let rand = Math.random() * 100;
-                let rIdx = rand < 5 ? 4 : (rand < 15 ? 3 : (rand < 35 ? 2 : (rand < 65 ? 1 : 0)));
-                const pet = pool[rIdx];
-                users[currentUser].pets.push({n: pet.n, en: pet.en, e: pet.e, r: rIdx});
-                save(); updateInvGrid();
-                document.getElementById('opening-egg-icon').style.display = 'none';
-                document.getElementById('opening-text').style.display = 'none';
-                const reveal = document.getElementById('pet-reveal');
-                reveal.style.display = 'block';
-                document.getElementById('revealed-pet-emoji').innerText = pet.e;
-                document.getElementById('revealed-pet-name').innerText = (currentLang === 'ru' ? pet.n : pet.en);
-                document.getElementById('revealed-pet-rarity').innerText = rarityNames[currentLang][rIdx];
-                document.getElementById('revealed-pet-rarity').className = `rarity-${rIdx}`;
+                document.getElementById('egg-stage-1').style.display = 'none';
+                document.getElementById('egg-stage-2').style.display = 'block';
+
+                // RNG
+                const r = Math.random() * 100;
+                let item;
+                if(r < 5) item = ITEMS[3]; // Legend
+                else if(r < 20) item = ITEMS[2]; // Ultra
+                else if(r < 50) item = ITEMS[1]; // Rare
+                else item = ITEMS[0]; // Common
+
+                // Save Item
+                if(!u.inventory[item.id]) u.inventory[item.id] = 0;
+                u.inventory[item.id]++;
+                save();
+
+                // UI
+                const name = appState.lang === 'ru' ? item.ru : item.en;
+                document.getElementById('res-emoji').innerText = item.icon;
+                document.getElementById('res-name').innerText = name;
+                document.getElementById('res-name').style.color = item.col;
+                document.getElementById('res-rarity').innerText = LOCALIZATION[appState.lang].rarity[item.r];
+                document.getElementById('res-rarity').style.color = item.col;
+
             }, 2500);
         }
 
-        function spinFortune() {
-            if (users[currentUser].score < 50) return showToast(texts[currentLang].low);
-            users[currentUser].score -= 50; save();
-            document.getElementById('score-container').innerText = users[currentUser].score;
-            const tape = document.getElementById('fortune-tape');
-            const randomSlot = Math.floor(Math.random() * 10) + 40; 
-            tape.style.transform = `translateX(-${randomSlot * 70 - 125}px)`;
-            setTimeout(() => {
-                const items = ['💩', '+10', '💩', '+100', '🎡', '💎', '💩', '+10', '💩', '+50'];
-                const win = items[randomSlot % 10];
-                if(win === '💎') users[currentUser].score += 1000;
-                else if(win.includes('+')) users[currentUser].score += parseInt(win.replace('+',''));
-                save(); document.getElementById('score-container').innerText = users[currentUser].score;
-                showToast(win);
-                setTimeout(() => { tape.style.transition='none'; tape.style.transform='translateX(0)'; setTimeout(()=>tape.style.transition='transform 4s cubic-bezier(0.1, 0, 0.1, 1)', 50); }, 500);
-            }, 4100);
+        function closeEgg() {
+            document.getElementById('egg-anim-layer').style.display = 'none';
         }
 
-        function changeBtnColor(start, end, id) {
-            document.documentElement.style.setProperty('--btn-grad-start', start);
-            document.documentElement.style.setProperty('--btn-grad-end', end);
-            localStorage.setItem('btnColor', JSON.stringify({start, end, id}));
-            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
-            if(document.getElementById('dot-' + id)) document.getElementById('dot-' + id).classList.add('active');
+        function buyItem(type, cost) {
+            const u = appState.data[appState.user];
+            
+            if(type === 'rbtn') {
+                if(u.unlocks.includes('rbtn')) return setColor(10, 'rainbow', 'rainbow');
+                if(u.score < cost) return showToast(LOCALIZATION[appState.lang].no_money);
+                u.score -= cost;
+                u.unlocks.push('rbtn');
+                document.getElementById('c10').classList.remove('locked');
+                setColor(10, 'rainbow', 'rainbow');
+            }
+            else if(type === 'hearts') {
+                if(u.unlocks.includes('rhearts')) return setEffect('rainbow');
+                if(u.score < cost) return showToast(LOCALIZATION[appState.lang].no_money);
+                u.score -= cost;
+                u.unlocks.push('rhearts');
+                document.getElementById('eff-rain-btn').classList.remove('locked');
+                setEffect('rainbow');
+            }
+            save();
+            updateScoreUI();
+            showToast(LOCALIZATION[appState.lang].bought);
         }
 
-        function updateInvGrid() {
-            const grid = document.getElementById('inv-grid');
-            grid.innerHTML = '';
-            users[currentUser].pets.forEach(p => {
-                const div = document.createElement('div');
-                div.className = `pet-card rarity-${p.r}`;
-                div.innerHTML = `<span style="font-size:1.5rem">${p.e}</span><br><b>${currentLang === 'ru' ? p.n : p.en}</b>`;
-                grid.appendChild(div);
+        /* --- INVENTORY --- */
+        function renderInv() {
+            const c = document.getElementById('inv-list');
+            c.innerHTML = '';
+            const u = appState.data[appState.user];
+            
+            ITEMS.forEach(it => {
+                if(u.inventory[it.id] && u.inventory[it.id] > 0) {
+                    const el = document.createElement('div');
+                    let borderCol = it.col;
+                    el.className = 'inv-item';
+                    el.style.borderColor = borderCol;
+                    el.innerHTML = `
+                        <div class="inv-count">x${u.inventory[it.id]}</div>
+                        <div style="font-size:2.5rem;">${it.icon}</div>
+                        <div style="font-size:0.7rem; font-weight:700; color:${borderCol}; line-height:1.2; margin-top:5px;">
+                            ${appState.lang==='ru'?it.ru:it.en}
+                        </div>
+                    `;
+                    c.appendChild(el);
+                }
             });
         }
 
-        function doClick(e) {
-            if(!currentUser) return;
-            users[currentUser].score++; save();
-            document.getElementById('score-container').innerText = users[currentUser].score;
-            const anim = document.createElement('div');
-            anim.className = 'click-plus'; anim.innerText = '+1';
-            anim.style.left = (e ? e.pageX : window.innerWidth/2) + 'px';
-            anim.style.top = (e ? e.pageY : window.innerHeight/2) + 'px';
-            document.body.appendChild(anim);
-            anim.animate([{opacity:1},{transform:'translateY(-100px)',opacity:0}], 600);
-            setTimeout(() => anim.remove(), 600);
-        }
-
+        /* --- FORTUNE --- */
         function initFortune() {
             const tape = document.getElementById('fortune-tape');
-            const items = ['💩', '+10', '💩', '+100', '🎡', '💎', '💩', '+10', '💩', '+50'];
-            for(let i=0; i<80; i++) {
-                const s = document.createElement('div'); s.className='fortune-slot'; s.innerText=items[i%10]; tape.appendChild(s);
+            const icons = ['💩', '+50', '💩', '+100', '💎', '+200', '💩', '+10'];
+            let html = '';
+            for(let i=0; i<50; i++) {
+                icons.forEach(ic => html += `<div class="fortune-cell">${ic}</div>`);
+            }
+            tape.innerHTML = html;
+        }
+
+        function spinWheel() {
+            const u = appState.data[appState.user];
+            if(u.score < 50) return showToast(LOCALIZATION[appState.lang].no_money);
+            
+            u.score -= 50;
+            updateScoreUI();
+            save();
+
+            const tape = document.getElementById('fortune-tape');
+            const rand = Math.floor(Math.random() * 20) + 10;
+            const shift = rand * 80; // 80px cell width
+            
+            tape.style.transform = `translateX(-${shift}px)`;
+            
+            setTimeout(() => {
+                const win = Math.floor(Math.random() * 100);
+                u.score += win;
+                updateScoreUI();
+                save();
+                showToast(`WIN: ${win}`);
+                tape.style.transition = 'none';
+                tape.style.transform = 'translateX(0)';
+                setTimeout(() => tape.style.transition = 'transform 4s cubic-bezier(0.1, 0, 0.1, 1)', 50);
+            }, 4100);
+        }
+
+        /* --- SETTINGS & VISUALS --- */
+        function setColor(id, s, e, noSave) {
+            const u = appState.data[appState.user];
+            // Check Lock
+            if(id === 10 && u && !u.unlocks.includes('rbtn') && !noSave) {
+                return showToast("LOCKED!");
+            }
+
+            const btn = document.getElementById('main-btn');
+            btn.classList.remove('rainbow-mode-btn');
+            btn.style.background = '';
+
+            if(s === 'rainbow') {
+                btn.classList.add('rainbow-mode-btn');
+            } else {
+                btn.style.background = `linear-gradient(135deg, ${s}, ${e})`;
+            }
+
+            // Update UI dots
+            document.querySelectorAll('.c-dot').forEach(d => d.classList.remove('active'));
+            const dot = document.getElementById('c'+id);
+            if(dot) dot.classList.add('active');
+
+            if(u && !noSave) {
+                u.activeColor = { id, s, e };
+                save();
             }
         }
 
-        function toggleModal(id) {
-            const m = document.getElementById(id);
-            const isOpen = m.style.display === 'block';
-            closeAll(); if(!isOpen) m.style.display = 'block';
+        function setEffect(type) {
+            const u = appState.data[appState.user];
+            if(type === 'rainbow' && !u.unlocks.includes('rhearts')) {
+                return showToast("LOCKED!");
+            }
+            if(u) {
+                u.activeEffect = type;
+                save();
+            }
+            activeEffectType = type;
         }
-        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-        function closeEggAnimation() { document.getElementById('egg-opening-overlay').style.display = 'none'; }
-        function save() { localStorage.setItem('clicker_users', JSON.stringify(users)); }
-        function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "show"; setTimeout(() => t.className = "", 2500); }
-        function toggleMode() { isLoginMode = !isLoginMode; setLang(currentLang); }
-        function toggleTheme() { document.body.classList.toggle('light-theme'); localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark'); }
-        
-        document.getElementById('click-button').addEventListener('click', (e) => doClick(e));
-        window.addEventListener('keydown', (e) => {
-            if (!currentUser) return;
-            const key = e.key.toLowerCase();
-            if (key === 'e' || key === 'у') doClick(null);
-            if (key === 'o' || key === 'щ') toggleModal('settings-panel');
-            if (key === 's' || key === 'ы') toggleModal('shop-modal');
-            if (key === 'f' || key === 'а') toggleModal('fortune-modal');
-            if (key === 'i' || key === 'ш') toggleModal('inventory-modal');
-        });
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const m = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            localStorage.setItem('idi_theme', m);
+        }
+
+        function changeLang(l) {
+            appState.lang = l;
+            localStorage.setItem('idi_lang', l);
+            applyLang();
+        }
+
+        function applyLang() {
+            const t = LOCALIZATION[appState.lang];
+            const l = appState.lang;
+
+            // Auth
+            document.getElementById('auth-sub').innerText = t.subtitle;
+            document.getElementById('auth-toggle').innerText = appState.loginMode ? t.toggle_reg : t.toggle_login;
+            document.getElementById('btn-auth-main').innerText = appState.loginMode ? t.login_btn : t.reg_btn;
+            document.getElementById('fl-ru-auth').classList.toggle('active', l==='ru');
+            document.getElementById('fl-en-auth').classList.toggle('active', l==='en');
+
+            // Game
+            document.getElementById('game-sub').innerText = t.subtitle;
+            document.getElementById('unit-display').innerText = t.unit;
+            document.getElementById('t-shop').innerText = t.shop;
+            document.getElementById('t-inv').innerText = t.inv;
+            document.getElementById('t-fortune').innerText = t.fortune;
+            document.getElementById('t-set').innerText = t.set;
+            
+            document.getElementById('n-egg').innerText = t.egg_name;
+            document.getElementById('n-hearts').innerText = t.r_hearts;
+            document.getElementById('n-rbtn').innerText = t.r_btn;
+            
+            document.getElementById('btn-theme').innerText = t.theme;
+            document.getElementById('btn-logout').innerText = t.logout;
+            document.getElementById('btn-spin').innerText = t.spin;
+            
+            document.getElementById('lbl-acc').innerText = t.lbl_acc;
+            document.getElementById('lbl-eff').innerText = t.lbl_eff;
+            document.getElementById('lbl-col').innerText = t.lbl_col;
+            document.getElementById('eff-off').innerText = t.eff_off; // missing in dict? fixed logic below
+            
+            document.getElementById('fl-ru-set').classList.toggle('active', l==='ru');
+            document.getElementById('fl-en-set').classList.toggle('active', l==='en');
+        }
+
+        /* --- PARTICLES SYSTEM (CANVAS) --- */
+        const cvs = document.getElementById('particles-canvas');
+        const ctx = cvs.getContext('2d');
+        let particles = [];
+        let activeEffectType = 'none';
+
+        function initParticles() {
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            animateParticles();
+        }
+
+        function resizeCanvas() {
+            cvs.width = window.innerWidth;
+            cvs.height = window.innerHeight;
+        }
+
+        function startParticles(type) {
+            activeEffectType = type;
+        }
+
+        function spawnBurst(x, y) {
+            if(activeEffectType === 'none') return;
+            // Burst logic for clicks
+            for(let i=0; i<3; i++) createParticle(x, y, true);
+        }
+
+        function createParticle(x, y, isBurst) {
+            if(activeEffectType === 'none') return;
+            
+            let text = '';
+            let color = '#fff';
+            let size = Math.random() * 20 + 10;
+            
+            if(activeEffectType === 'snow') text = '❄️';
+            else if(activeEffectType === 'hearts') text = '❤️';
+            else if(activeEffectType === 'pink') text = Math.random()>0.5?'🌸':'💗';
+            else if(activeEffectType === 'china') text = ['🏮','🧧','🐲'][Math.floor(Math.random()*3)];
+            else if(activeEffectType === 'shit') text = '💩';
+            else if(activeEffectType === 'rainbow') text = '💖'; // handled via hue
+            else if(activeEffectType === 'mats') {
+                const arr = appState.lang === 'ru' ? MATS.ru : MATS.en;
+                text = arr[Math.floor(Math.random()*arr.length)];
+                color = '#ff4e50';
+                size = 20;
+            }
+
+            particles.push({
+                x: x || Math.random() * cvs.width,
+                y: y || -50,
+                vx: isBurst ? (Math.random()-0.5)*10 : 0,
+                vy: isBurst ? (Math.random()-0.5)*10 : Math.random() * 2 + 1,
+                text: text,
+                color: color,
+                size: size,
+                life: 1.0,
+                hue: Math.random()*360,
+                isRainbow: activeEffectType === 'rainbow'
+            });
+        }
+
+        // Main Loop
+        function animateParticles() {
+            ctx.clearRect(0,0,cvs.width, cvs.height);
+            
+            // Auto spawn
+            if(activeEffectType !== 'none' && Math.random() < 0.1) {
+                createParticle();
+            }
+
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.005;
+                
+                // Physics
+                if(p.vx !== 0) p.vx *= 0.95; // friction
+                if(!p.isBurst) p.y += 1; // gravity
+
+                ctx.font = `900 ${p.size}px Montserrat`;
+                
+                if(p.isRainbow) {
+                    p.hue += 5;
+                    ctx.fillStyle = `hsl(${p.hue}, 100%, 50%)`;
+                } else {
+                    ctx.fillStyle = p.color;
+                }
+                
+                ctx.globalAlpha = p.life;
+                ctx.fillText(p.text, p.x, p.y);
+                ctx.globalAlpha = 1;
+            }
+
+            particles = particles.filter(p => p.life > 0);
+            requestAnimationFrame(animateParticles);
+        }
+
+        /* --- UI UTILS --- */
+        function openModal(id) {
+            closeModals();
+            document.getElementById('modal-'+id).classList.add('open');
+            if(id === 'inventory') renderInv();
+        }
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+        }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(()=>t.classList.remove('show'), 2000);
+        }
+
     </script>
 </body>
 </html>
-
